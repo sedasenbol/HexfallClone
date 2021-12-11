@@ -11,12 +11,12 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Camera
+  - TouchController
+  - Manager
+  - Container
+  - Hexagon
+  - Bomb
   - 
   - 
   - 
