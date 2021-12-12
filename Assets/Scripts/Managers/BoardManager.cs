@@ -107,7 +107,7 @@ public class BoardManager : MonoBehaviour
                 {
                     HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.color);
                     OnHexagonCleared?.Invoke(indexes[0], indexes[1]);
-                    boardHexagons[indexes[0]][indexes[1]] = null;
+                    RemoveHexagonFromBoardHexagonsList(currentHexagon, indexes[0], indexes[1]);
                 });
         }
 
@@ -157,6 +157,7 @@ public class BoardManager : MonoBehaviour
         };
 
         var hexagonTransform = HexagonPooler.Instance.SpawnFromPool(randomColor, spawnPosition);
+        hexagonTransform.localScale = BoardCreator.Instance.HexagonScale;
         var hexagon = hexagonTransform.GetComponent<Hexagon>();
         hexagon.HasBeenJustSpawned = true;
         hexagon.Initialize();

@@ -161,6 +161,7 @@ public class BoardCreator : MonoBehaviour
         boardHexagons = null;
     }
 
+    public Vector3 HexagonScale => hexagonScale;
     public float HeightDifferenceBetweenHexagons => heightDifferenceBetweenHexagons;
     public List<Hexagon>[] BoardHexagons => boardHexagons;
 }
