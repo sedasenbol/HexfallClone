@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    [SerializeField] private LevelStartParametersScriptableObject levelStartParameters; 
+    
     private void Awake()
     {
         GameManager.OnGameSceneLoaded += OnGameSceneLoaded;
@@ -18,13 +20,19 @@ public class LevelManager : MonoBehaviour
 
     private void StartGame()
     {
-        DOTween.SetTweensCapacity(1000, 10);
+        DOTween.SetTweensCapacity(levelStartParameters.TweenersCapacity, levelStartParameters.SequencesCapacity);
         
         HexagonPooler.Instance.PrepareHexagonPools();
         BoardCreator.Instance.CreateBoard();
-        BoardManager.Instance.CheckInitialHexagons();
+        StartCoroutine(CheckInitialHexagonsWithDelay());
     }
 
+    private IEnumerator CheckInitialHexagonsWithDelay()
+    {
+        yield return new WaitForSeconds(levelStartParameters.InitialHexagonCheckDelay);
+        
+        BoardManager.Instance.CheckInitialHexagons();
+    }
 
     private void OnDisable()
     {

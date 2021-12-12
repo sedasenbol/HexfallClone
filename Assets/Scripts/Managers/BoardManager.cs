@@ -9,6 +9,7 @@ using Random = UnityEngine.Random;
 public class BoardManager : MonoBehaviour
 {
     public static event Action<int, int> OnHexagonCleared;
+    public static event Action OnAllInitialHexagonsCleared;
     
     #region Singleton
 
@@ -34,7 +35,7 @@ public class BoardManager : MonoBehaviour
     private void OnEnable()
     {
         waitForNewHexagonsFall = new WaitForSeconds(boardParameters.ClearedHexagonUnitFallingDuration + boardParameters
-        .HexagonFallingAfterSpawnDuration + 2f);
+        .HexagonFallingAfterSpawnDuration + boardParameters.HexagonGroupCheckDelay);
         
         hexagonIndexesToSetInactive = new List<int[]>();
     }
@@ -48,6 +49,7 @@ public class BoardManager : MonoBehaviour
             for (var j = 0; j < boardHexagons[i].Count; j++)
             {
                 boardHexagons[i][j].Initialize();
+                boardHexagons[i][j].HasBeenJustSpawned = false;
                 if (!boardHexagons[i][j].CheckHexagonalGroup()) {continue;}
                 
                 hexagonIndexesToSetInactive.AddRange(boardHexagons[i][j].HexagonalGroup);
@@ -63,7 +65,6 @@ public class BoardManager : MonoBehaviour
     private void OrderHexagonIndexesToSetInactive()
     {
         var hexagonIndexesToSetInactiveCopy = new List<int[]>(hexagonIndexesToSetInactive);
-        var currentIndex = new int[] {};
         
         hexagonIndexesToSetInactive.Clear();
 
@@ -71,7 +72,7 @@ public class BoardManager : MonoBehaviour
         {
             for (var j = 0; j < boardParameters.RowCount; j++)
             {
-                currentIndex = new[] { i, j };
+                var currentIndex = new[] { i, j };
 
                 if (!hexagonIndexesToSetInactiveCopy.Any(index => index.SequenceEqual(currentIndex))) {continue;}
 
@@ -101,8 +102,7 @@ public class BoardManager : MonoBehaviour
             clearedHexagonsInColumns[indexes[0]]++;
             currentHexagon.Active = false;
             
-            currentHexagon.MyTransform.DOMoveY(boardParameters.HexagonFallingHeight, boardParameters
-            .ClearedHexagonUnitFallingDuration)
+            currentHexagon.MyTransform.DOMoveY(boardParameters.HexagonFallingHeight, boardParameters.ClearedHexagonUnitFallingDuration)
                 .OnComplete(() =>
                 {
                     HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.color);
@@ -113,7 +113,9 @@ public class BoardManager : MonoBehaviour
 
         AddHexagonsToClearedColumns(clearedHexagonsInColumns);
         
-        //if (cleared) { StartCoroutine(CheckInitialHexagonsWithDelay()); }
+        if (cleared) { StartCoroutine(CheckInitialHexagonsWithDelay()); return;}
+        
+        OnAllInitialHexagonsCleared?.Invoke();
     }
 
     private void AddHexagonsToClearedColumns(List<int> clearedHexagonsInColumns)
@@ -141,6 +143,8 @@ public class BoardManager : MonoBehaviour
 
     public void RemoveHexagonFromBoardHexagonsList(Hexagon hexagon, int i, int j)
     {
+        if (boardHexagons[i][j] != hexagon) {return;}
+        
         boardHexagons[i][j] = null;
     }
     
@@ -173,7 +177,7 @@ public class BoardManager : MonoBehaviour
     {
         if (indexes[0] < 0 || indexes[0] > boardParameters.ColumnCount - 1 || indexes[1] < 0 ||
             indexes[1] > boardParameters.RowCount - 1) { return Color.clear; }
-
+        
         return boardHexagons[indexes[0]][indexes[1]].color;
     }
 }

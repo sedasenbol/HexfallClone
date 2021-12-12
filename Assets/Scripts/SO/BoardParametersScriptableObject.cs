@@ -21,6 +21,9 @@ public class BoardParametersScriptableObject : ScriptableObject
     [SerializeField] private float clearedHexagonUnitFallingDuration = 1f;
     [SerializeField] private float hexagonFallingAfterSpawnDuration = 2f;
 
+    [SerializeField] private float hexagonGroupCheckDelay = 0.5f;
+
+    public float HexagonGroupCheckDelay => hexagonGroupCheckDelay;
     public float ClearedHexagonUnitFallingDuration => clearedHexagonUnitFallingDuration;
     public float HexagonFallingHeight => hexagonFallingHeight;
     public float OldHexagonFallingDuration => oldHexagonFallingDuration;
