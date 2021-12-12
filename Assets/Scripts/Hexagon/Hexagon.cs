@@ -12,7 +12,6 @@ public class Hexagon : MonoBehaviour
     private List<int[]> touchingIndexes;
 
     private Transform myTransform;
-    private Tween fallingTween;
 
     private void OnEnable()
     {
@@ -29,11 +28,14 @@ public class Hexagon : MonoBehaviour
         DOTween.Kill(myTransform);
         CurrentTargetHeight -= BoardCreator.Instance.HeightDifferenceBetweenHexagons;
         CurrentTargetIndexJ--;
-        fallingTween = myTransform.DOMoveY(CurrentTargetHeight, boardParameters.HexagonFallingDuration).OnComplete(() =>
+
+        myTransform.DOMoveY(CurrentTargetHeight, boardParameters.OldHexagonFallingDuration).OnComplete(() =>
         {
-            BoardManager.Instance.AddHexagonToBoardHexagonsList(this, IndexI, IndexJ);
+            BoardManager.Instance.RemoveHexagonFromBoardHexagonsList(this, IndexI, IndexJ);
             IndexJ = CurrentTargetIndexJ;
+            BoardManager.Instance.AddHexagonToBoardHexagonsList(this, IndexI, IndexJ);
         });
+        
     }
 
     public void Initialize()

@@ -26,5 +26,6 @@ MonoBehaviour:
   - {r: 1, g: 0.39354926, b: 0, a: 1}
   hexagonSpawnHeight: 8
   hexagonFallingHeight: -6
-  hexagonFallingDuration: 0.5
+  oldHexagonFallingDuration: 1
+  clearedHexagonUnitFallingDuration: 0.1
   hexagonFallingAfterSpawnDuration: 1

@@ -17,11 +17,13 @@ public class BoardParametersScriptableObject : ScriptableObject
 
     [SerializeField] private float hexagonSpawnHeight = 10f;
     [SerializeField] private float hexagonFallingHeight = -10f;
-    [SerializeField] private float hexagonFallingDuration = 2f;
+    [SerializeField] private float oldHexagonFallingDuration = 2f;
+    [SerializeField] private float clearedHexagonUnitFallingDuration = 1f;
     [SerializeField] private float hexagonFallingAfterSpawnDuration = 2f;
 
+    public float ClearedHexagonUnitFallingDuration => clearedHexagonUnitFallingDuration;
     public float HexagonFallingHeight => hexagonFallingHeight;
-    public float HexagonFallingDuration => hexagonFallingDuration;
+    public float OldHexagonFallingDuration => oldHexagonFallingDuration;
     public float HexagonFallingAfterSpawnDuration => hexagonFallingAfterSpawnDuration;
     public float HexagonSpawnHeight => hexagonSpawnHeight;
     public float BoardMarginVertical => boardMarginVertical;
