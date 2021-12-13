@@ -6,15 +6,15 @@ using DG.Tweening;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class BoardManager : MonoBehaviour
+public class InitialHexagonalGroupChecker : MonoBehaviour
 {
     public static event Action<int, int> OnHexagonCleared;
-    public static event Action OnAllInitialHexagonsCleared;
+    public static event Action OnAllInitialHexagonalGroupsCleared;
     
     #region Singleton
 
-    private static BoardManager instance;
-    public static BoardManager Instance => instance;
+    private static InitialHexagonalGroupChecker instance;
+    public static InitialHexagonalGroupChecker Instance => instance;
 
     private void Awake()
     {
@@ -26,11 +26,13 @@ public class BoardManager : MonoBehaviour
     #endregion
 
     [SerializeField] private BoardParametersScriptableObject boardParameters;
-
+    [SerializeField] private BoardOperator boardOperator;
+    
     private YieldInstruction waitForNewHexagonsFall;
     private List<Hexagon>[] boardHexagons => BoardCreator.Instance.BoardHexagons;
     
     private List<int[]> hexagonIndexesToSetInactive;
+
 
     private void OnEnable()
     {
@@ -54,7 +56,7 @@ public class BoardManager : MonoBehaviour
                 
                 hexagonIndexesToSetInactive.AddRange(boardHexagons[i][j].HexagonalGroup);
                 hexagonIndexesToSetInactive.Add(new []{i,j});
-                boardHexagons[i][j].haveHexagonalGroup = false;
+                boardHexagons[i][j].HaveHexagonalGroup = false;
             }
         }
         
@@ -82,8 +84,6 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-
-    
     private void ClearHexagonalGroups()
     {
         var clearedHexagonsInColumns = Enumerable.Repeat(0, boardParameters.ColumnCount).ToList();
@@ -107,7 +107,7 @@ public class BoardManager : MonoBehaviour
                 {
                     HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.color);
                     OnHexagonCleared?.Invoke(indexes[0], indexes[1]);
-                    RemoveHexagonFromBoardHexagonsList(currentHexagon, indexes[0], indexes[1]);
+                    boardOperator.RemoveHexagonFromBoardHexagonsList(currentHexagon, indexes[0], indexes[1]);
                 });
         }
 
@@ -115,7 +115,7 @@ public class BoardManager : MonoBehaviour
         
         if (cleared) { StartCoroutine(CheckInitialHexagonsWithDelay()); return;}
         
-        OnAllInitialHexagonsCleared?.Invoke();
+        OnAllInitialHexagonalGroupsCleared?.Invoke();
     }
 
     private void AddHexagonsToClearedColumns(List<int> clearedHexagonsInColumns)
@@ -136,17 +136,7 @@ public class BoardManager : MonoBehaviour
         CheckInitialHexagons();
     }
     
-    public void AddHexagonToBoardHexagonsList(Hexagon hexagon, int i, int j)
-    {
-        boardHexagons[i][j] = hexagon;
-    }
 
-    public void RemoveHexagonFromBoardHexagonsList(Hexagon hexagon, int i, int j)
-    {
-        if (boardHexagons[i][j] != hexagon) {return;}
-        
-        boardHexagons[i][j] = null;
-    }
     
     private void AddNewHexagon(int i, int j)
     {
@@ -170,14 +160,8 @@ public class BoardManager : MonoBehaviour
         hexagon.IndexI = i;
         hexagon.IndexJ = j;
         hexagon.color = randomColor;
-        AddHexagonToBoardHexagonsList(hexagon, i, j);
+        boardOperator.AddHexagonToBoardHexagonsList(hexagon, i, j);
     }
 
-    public Color GetHexagonColorOnIndex(int[] indexes)
-    {
-        if (indexes[0] < 0 || indexes[0] > boardParameters.ColumnCount - 1 || indexes[1] < 0 ||
-            indexes[1] > boardParameters.RowCount - 1) { return Color.clear; }
-        
-        return boardHexagons[indexes[0]][indexes[1]].color;
-    }
+
 }

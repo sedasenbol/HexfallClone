@@ -31,18 +31,16 @@ public class BoardCreator : MonoBehaviour
 
     private Camera mainCam;
     private Vector3 bottomLeftScreenWorldPos;
+    private Vector3 topRightScreenWorldPos;
     
     private float hexagonXLength;
-    private float hexagonSideLength;
     private float hexagonYLength;
     private float limitXHexagonScaleMultiplier;
     private float limitYHexagonScaleMultiplier;
-    private Orientation limitOrientation;
     private Vector3 hexagonScale;
+    private Vector3 boardOffset;
     private float heightDifferenceBetweenHexagons;
-
-    private List<Hexagon>[] boardHexagons;
-
+    
     private void OnEnable()
     {
         mainCam = Camera.main;
@@ -51,8 +49,8 @@ public class BoardCreator : MonoBehaviour
     public void CreateBoard()
     {
         GetHexagonLengths();
-        SetLimitingHexagonScaleMultipliers();
-        SetHexagonScaleValue();
+        SetLimitingHexagonScale();
+        SetBoardOffset();
         
         CreateInitialHexagons();
         
@@ -65,47 +63,61 @@ public class BoardCreator : MonoBehaviour
 
         hexagonXLength = hexagonRendererBounds.size.x;
         hexagonYLength = hexagonRendererBounds.size.y;
-        hexagonSideLength = hexagonXLength / (1 + Mathf.Sqrt(2));
     }
     
-    private void SetLimitingHexagonScaleMultipliers()
+    private void SetLimitingHexagonScale()
     {
         bottomLeftScreenWorldPos = mainCam.ViewportToWorldPoint(Vector3.zero);
-        var topRightScreenWorldPos = mainCam.ViewportToWorldPoint(new Vector3(1f, 1f, 0f));
+        topRightScreenWorldPos = mainCam.ViewportToWorldPoint(new Vector3(1f, 1f, 0f));
         
-        var horizontalScreenLength = topRightScreenWorldPos.x - bottomLeftScreenWorldPos.x - 2 * boardParameters.BoardMarginHorizontal;
-        var verticalScreenLength = topRightScreenWorldPos.y - bottomLeftScreenWorldPos.y - 2 * boardParameters.BoardMarginVertical;
+        var horizontalScreenLength = topRightScreenWorldPos.x - bottomLeftScreenWorldPos.x - boardParameters.BoardMarginHorizontal;
+        var verticalScreenLength = topRightScreenWorldPos.y - bottomLeftScreenWorldPos.y - boardParameters.BoardMarginVertical;
 
-        limitXHexagonScaleMultiplier = horizontalScreenLength / ((boardParameters.ColumnCount + 2) / 2 * hexagonXLength +
-                                                                 (boardParameters.ColumnCount + 1) / 2 * hexagonSideLength);
-        limitYHexagonScaleMultiplier = verticalScreenLength / ((boardParameters.RowCount + 0.5f) * hexagonYLength);
-    
-        limitOrientation = limitXHexagonScaleMultiplier < limitYHexagonScaleMultiplier
-            ? Orientation.Horizontal
-            : Orientation.Vertical;
+        limitXHexagonScaleMultiplier = horizontalScreenLength / GetCurrentGridXLength();
+        limitYHexagonScaleMultiplier = verticalScreenLength / GetCurrentGridYLength();
+        
+        AdjustHexagonLengths();
+        SetBoardOffset();
     }
-    
-    private void SetHexagonScaleValue()
+
+    private float GetCurrentGridYLength()
+    {
+        return (GetHexagonYPosition(0,boardParameters.RowCount - 1) - GetHexagonYPosition(0,0) + 1.5f * hexagonYLength);
+    }
+
+    private float GetCurrentGridXLength()
+    {
+        return (GetHexagonXPosition(boardParameters.ColumnCount - 1) - GetHexagonXPosition(0) + hexagonXLength);
+    }
+
+    private void AdjustHexagonLengths()
     {
         var currentScale = boardParameters.HexagonTransform.localScale;
+        var limitMultiplier = limitXHexagonScaleMultiplier < limitYHexagonScaleMultiplier
+            ? limitXHexagonScaleMultiplier
+            : limitYHexagonScaleMultiplier;
         
-        hexagonScale = limitOrientation == Orientation.Horizontal
-            ? currentScale * limitXHexagonScaleMultiplier / hexagonXLength
-            : currentScale * limitYHexagonScaleMultiplier / hexagonYLength;
+        hexagonScale = limitMultiplier * currentScale;
 
-        hexagonXLength *= hexagonScale.x / currentScale.x;
-        hexagonYLength *= hexagonScale.y / currentScale.y;
+        hexagonXLength *= limitMultiplier;
+        hexagonYLength *= limitMultiplier;
+    }
 
-        hexagonSideLength = hexagonXLength / (1 + Mathf.Sqrt(2));
+    private void SetBoardOffset()
+    {
+        var gridLength = new Vector3(GetCurrentGridXLength(), GetCurrentGridYLength(), 0f);
+        var marginOffset = new Vector3(boardParameters.BoardMarginHorizontal, boardParameters.BoardMarginVertical, 0f);
+
+        boardOffset = topRightScreenWorldPos - bottomLeftScreenWorldPos - gridLength - marginOffset;
     }
     
     private void CreateInitialHexagons()
     {
-        boardHexagons = new List<Hexagon>[boardParameters.ColumnCount];
+        BoardHexagons = new List<Hexagon>[boardParameters.ColumnCount];
         
         for (var i = 0; i < boardParameters.ColumnCount; i++)
         {
-            boardHexagons[i] = new List<Hexagon>();
+            BoardHexagons[i] = new List<Hexagon>();
             
             for (var j = 0; j < boardParameters.RowCount; j++)
             {
@@ -117,7 +129,7 @@ public class BoardCreator : MonoBehaviour
                 hexagon.IndexI = i;
                 hexagon.IndexJ = j;
                 
-                boardHexagons[i].Add(hexagon);
+                BoardHexagons[i].Add(hexagon);
             }
         }
     }
@@ -139,8 +151,8 @@ public class BoardCreator : MonoBehaviour
 
     private float GetHexagonYPosition(int i, int j)
     {
-        return bottomLeftScreenWorldPos.y + boardParameters.BoardMarginVertical / 2f +
-               ((i + 1) % 2 * 0.5f + j + 0.5f) * hexagonYLength;
+        return boardOffset.y / 2f + bottomLeftScreenWorldPos.y + boardParameters.BoardMarginVertical / 2f +
+               ((1 + (i+1) % 2) * 0.5f + j) * hexagonYLength;
     }
 
     private void SetHeightDifferenceBetweenHexagons()
@@ -151,17 +163,18 @@ public class BoardCreator : MonoBehaviour
     
     private float GetHexagonXPosition(int i)
     {
-        return bottomLeftScreenWorldPos.x + boardParameters.BoardMarginHorizontal / 2f + (i + 1) / 2f * hexagonXLength +
-            (i / 2f) * hexagonSideLength;
+        return boardOffset.x / 2f + bottomLeftScreenWorldPos.x + boardParameters.BoardMarginHorizontal / 2f + hexagonXLength / 
+        2f + i * 0.75f * hexagonXLength;
     }
 
     private void OnDisable()
     {
         mainCam = null;
-        boardHexagons = null;
+        BoardHexagons = null;
     }
 
+    public float HexagonXLength => hexagonXLength;
     public Vector3 HexagonScale => hexagonScale;
     public float HeightDifferenceBetweenHexagons => heightDifferenceBetweenHexagons;
-    public List<Hexagon>[] BoardHexagons => boardHexagons;
+    public List<Hexagon>[] BoardHexagons { get; set; }
 }

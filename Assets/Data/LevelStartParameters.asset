@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61ab4fbca12e24b238850bebdf440bad, type: 3}
   m_Name: LevelStartParameters
   m_EditorClassIdentifier: 
-  tweenersCapacity: 100
+  tweenersCapacity: 300
   sequencesCapacity: 0
   initialHexagonCheckDelay: 0.5
+  startCombiningHexagonsTextDelay: 1.5

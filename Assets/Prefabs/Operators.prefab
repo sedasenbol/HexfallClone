@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2606987070748294210
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1013429253968643209}
+  - component: {fileID: 5470864652960645520}
+  - component: {fileID: 3242579088492431950}
+  - component: {fileID: 2606987070748294211}
+  m_Layer: 8
+  m_Name: Operators
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 4294967295
+  m_IsActive: 1
+--- !u!4 &1013429253968643209
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2606987070748294210}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5470864652960645520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2606987070748294210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41d82f3156e0c42e0a2ce62a25534cfe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tapHandler: {fileID: 8199318206095785714, guid: 1c6b8f4a574354c6cb052ef49d40ae81, type: 3}
+  boardOperator: {fileID: 2606987070748294211}
+--- !u!114 &3242579088492431950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2606987070748294210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 878748a5be38a46e8a57fe39c655e7ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boardParameters: {fileID: 11400000, guid: c86c4e820f6d44eacbf28d18841059a3, type: 2}
+  boardOperator: {fileID: 2606987070748294211}
+--- !u!114 &2606987070748294211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2606987070748294210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2357c2d402f274df9b97c54ce725bb93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boardParameters: {fileID: 11400000, guid: c86c4e820f6d44eacbf28d18841059a3, type: 2}

@@ -7,6 +7,7 @@ using UnityEngine;
 public class Hexagon : MonoBehaviour
 {
     [SerializeField] private BoardParametersScriptableObject boardParameters;
+    [SerializeField] private BoardOperator boardOperator;
     
     private List<int[]> hexagonalGroup;
     private List<int[]> touchingIndexes;
@@ -15,7 +16,7 @@ public class Hexagon : MonoBehaviour
 
     private void OnEnable()
     {
-        BoardManager.OnHexagonCleared += OnHexagonCleared;
+        InitialHexagonalGroupChecker.OnHexagonCleared += OnHexagonCleared;
         
         Initialize();
     }
@@ -31,9 +32,9 @@ public class Hexagon : MonoBehaviour
 
         myTransform.DOMoveY(CurrentTargetHeight, boardParameters.OldHexagonFallingDuration).OnComplete(() =>
         {
-            BoardManager.Instance.RemoveHexagonFromBoardHexagonsList(this, IndexI, IndexJ);
+            boardOperator.RemoveHexagonFromBoardHexagonsList(this, IndexI, IndexJ);
             IndexJ = CurrentTargetIndexJ;
-            BoardManager.Instance.AddHexagonToBoardHexagonsList(this, IndexI, IndexJ);
+            boardOperator.AddHexagonToBoardHexagonsList(this, IndexI, IndexJ);
         });
         
     }
@@ -61,14 +62,14 @@ public class Hexagon : MonoBehaviour
 
     public bool CheckHexagonalGroup()
     {
-        haveHexagonalGroup = false;
+        HaveHexagonalGroup = false;
         hexagonalGroup = new List<int[]>();
 
         var previousHexagonWasOfMyColor = false;
         
         for (var i = 0; i < touchingIndexes.Count; i++)
         {
-            if (color != BoardManager.Instance.GetHexagonColorOnIndex(touchingIndexes[i]))
+            if (color != boardOperator.GetHexagonColorOnIndex(touchingIndexes[i]))
             {
                 previousHexagonWasOfMyColor = false;
                 continue;
@@ -78,35 +79,36 @@ public class Hexagon : MonoBehaviour
             {
                 hexagonalGroup.Add(touchingIndexes[i]);
                 hexagonalGroup.Add(touchingIndexes[i-1]);
-                haveHexagonalGroup = true;
+                HaveHexagonalGroup = true;
                 continue;
             }
             
             previousHexagonWasOfMyColor = true;
         }
 
-        if (!previousHexagonWasOfMyColor || color != BoardManager.Instance.GetHexagonColorOnIndex(touchingIndexes[0])) { return haveHexagonalGroup; }
+        if (!previousHexagonWasOfMyColor || color != boardOperator.GetHexagonColorOnIndex(touchingIndexes[0])) { return HaveHexagonalGroup; }
         
         hexagonalGroup.Add(touchingIndexes[touchingIndexes.Count - 1]); 
         hexagonalGroup.Add(touchingIndexes[0]);
-        haveHexagonalGroup = true;
+        HaveHexagonalGroup = true;
 
-        return haveHexagonalGroup;
+        return HaveHexagonalGroup;
     }
     
     private void OnDisable()
     {
         myTransform = null;
 
-        BoardManager.OnHexagonCleared -= OnHexagonCleared;
+        InitialHexagonalGroupChecker.OnHexagonCleared -= OnHexagonCleared;
     }
 
+    public bool Chosen { get; set; }
     public bool HasBeenJustSpawned { get; set; }
     public int CurrentTargetIndexJ { get; set; }
     public float CurrentTargetHeight { get; set; }
     public bool Active { get; set; }
     public Transform MyTransform => myTransform;
-    public bool haveHexagonalGroup { get; set; }
+    public bool HaveHexagonalGroup { get; set; }
     public List<int[]> HexagonalGroup => hexagonalGroup;
     public int IndexI { get; set; }
     public int IndexJ { get; set; }

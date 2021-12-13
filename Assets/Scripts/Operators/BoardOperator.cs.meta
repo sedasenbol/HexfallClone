@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 2357c2d402f274df9b97c54ce725bb93
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - boardParameters: {fileID: 11400000, guid: e397f1b17b3a845daa75f7f94f0dc7ce, type: 2}
+  - currentHexagonalGroupTransform: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
