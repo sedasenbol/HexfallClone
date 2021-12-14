@@ -14,7 +14,7 @@ public class LevelManager : MonoBehaviour
     private void Awake()
     {
         GameManager.OnGameSceneLoaded += OnGameSceneLoaded;
-        InitialHexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
+        HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
         
         inputHandler.gameObject.SetActive(false);
     }
@@ -35,12 +35,12 @@ public class LevelManager : MonoBehaviour
         
         HexagonPooler.Instance.PrepareHexagonPools();
         BoardCreator.Instance.CreateBoard();
-        InitialHexagonalGroupChecker.Instance.CheckInitialHexagons();
+        HexagonalGroupChecker.Instance.CheckInitialHexagons();
     }
 
     private void OnDisable()
     {
         GameManager.OnGameSceneLoaded -= OnGameSceneLoaded;
-        InitialHexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
+        HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
     }
 }

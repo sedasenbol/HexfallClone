@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -15,12 +13,12 @@ public class DragHandler : MonoBehaviour
     public static event Action<DragOrientation> OnPlayerDragProcessed; 
 
     [SerializeField] private TouchParametersScriptableObject touchParameters;
-    [SerializeField] private TapHandler tapHandler;
+    [SerializeField] private HexagonChooser hexagonChooser;
     
     private float previousDragAngle;
     private bool shouldProcessDrag;
     
-    private void Awake()
+    private void OnEnable()
     {
         TouchController.OnPlayerDragged += OnPlayerDragged;
         TouchController.OnPlayerDragBegan += OnPlayerDragBegan;
@@ -37,7 +35,7 @@ public class DragHandler : MonoBehaviour
         shouldProcessDrag = true;
         
         var dragStartPosition= eventData.pointerCurrentRaycast.worldPosition;
-        var dragStartVector = dragStartPosition - tapHandler.ChosenPoint ;
+        var dragStartVector = dragStartPosition - hexagonChooser.ChosenPoint ;
         
         previousDragAngle = Mathf.Atan2(dragStartVector.y, dragStartVector.x) * Mathf.Rad2Deg;
     }
@@ -47,7 +45,7 @@ public class DragHandler : MonoBehaviour
         if (!shouldProcessDrag) {return;}
         
         var currentDragPosition = eventData.pointerCurrentRaycast.worldPosition;
-        var currentDragVector = currentDragPosition - tapHandler.ChosenPoint;
+        var currentDragVector = currentDragPosition - hexagonChooser.ChosenPoint;
 
         var currentDragAngle = Mathf.Atan2(currentDragVector.y, currentDragVector.x) * Mathf.Rad2Deg;
 

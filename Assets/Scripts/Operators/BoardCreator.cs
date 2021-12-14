@@ -149,7 +149,7 @@ public class BoardCreator : MonoBehaviour
         };
     }
 
-    private float GetHexagonYPosition(int i, int j)
+    public float GetHexagonYPosition(int i, int j)
     {
         return boardOffset.y / 2f + bottomLeftScreenWorldPos.y + boardParameters.BoardMarginVertical / 2f +
                ((1 + (i+1) % 2) * 0.5f + j) * hexagonYLength;

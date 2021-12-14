@@ -27,7 +27,8 @@ MonoBehaviour:
   hexagonSpawnHeight: 8
   hexagonFallingHeight: -6
   oldHexagonFallingDuration: 1
-  clearedHexagonUnitFallingDuration: 0.1
+  clearedHexagonFallingDuration: 0.1
   hexagonFallingAfterSpawnDuration: 1
   hexagonGroupCheckDelay: 0.5
-  hexagonalGroupRotateDuration: 0.5
+  hexagonalGroupUnitRotateDuration: 1
+  hexagonalGroupRotateSpinCount: 3

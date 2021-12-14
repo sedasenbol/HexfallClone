@@ -25,7 +25,7 @@ public class UIManager : MonoBehaviour
     
     private void OnEnable()
     {
-        InitialHexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
+        HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
 
         startCombiningHexagonsTextDelay = new WaitForSeconds(levelStartParameters.StartCombiningHexagonsTextDelay);
         
@@ -100,6 +100,6 @@ public class UIManager : MonoBehaviour
 
     private void OnDisable()
     {
-        InitialHexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
+        HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
     }
 }

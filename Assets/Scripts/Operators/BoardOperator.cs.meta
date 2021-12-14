@@ -4,8 +4,8 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - boardParameters: {fileID: 11400000, guid: e397f1b17b3a845daa75f7f94f0dc7ce, type: 2}
-  - currentHexagonalGroupTransform: {instanceID: 0}
+  - boardParameters: {fileID: 11400000, guid: c86c4e820f6d44eacbf28d18841059a3, type: 2}
+  - hexagonalGroupChecker: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

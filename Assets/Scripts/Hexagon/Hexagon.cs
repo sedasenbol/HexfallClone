@@ -16,7 +16,7 @@ public class Hexagon : MonoBehaviour
 
     private void OnEnable()
     {
-        InitialHexagonalGroupChecker.OnHexagonCleared += OnHexagonCleared;
+        HexagonalGroupChecker.OnHexagonCleared += OnHexagonCleared;
         
         Initialize();
     }
@@ -27,9 +27,15 @@ public class Hexagon : MonoBehaviour
         if (i != IndexI || j >= IndexJ) {return;}
         
         DOTween.Kill(myTransform);
-        CurrentTargetHeight -= BoardCreator.Instance.HeightDifferenceBetweenHexagons;
         CurrentTargetIndexJ--;
+        //CurrentTargetHeight -= BoardCreator.Instance.HeightDifferenceBetweenHexagons;
 
+        if (CurrentTargetIndexJ < 0 || CurrentTargetIndexJ > boardParameters.RowCount - 1) Debug.Log(i + " " + CurrentTargetIndexJ);
+
+        CurrentTargetHeight = BoardCreator.Instance.GetHexagonYPosition(i, CurrentTargetIndexJ);
+        
+        //if (CurrentTargetIndexJ != CurrentTargetHeight2) {Debug.Log("that: " + i + " " +j);}
+        
         myTransform.DOMoveY(CurrentTargetHeight, boardParameters.OldHexagonFallingDuration).OnComplete(() =>
         {
             boardOperator.RemoveHexagonFromBoardHexagonsList(this, IndexI, IndexJ);
@@ -45,10 +51,10 @@ public class Hexagon : MonoBehaviour
         myTransform = transform;
         CurrentTargetHeight = myTransform.position.y;
         CurrentTargetIndexJ = IndexJ;
-        InitializeTouchingIndexes();
+        SetTouchingHexagonIndexes();
     }
 
-    private void InitializeTouchingIndexes()
+    private void SetTouchingHexagonIndexes()
     {
         touchingIndexes = new List<int[]>();
 
@@ -60,8 +66,10 @@ public class Hexagon : MonoBehaviour
         touchingIndexes.Add(new int[] { IndexI, IndexJ + 1 }); // On top
     }
 
-    public bool CheckHexagonalGroup()
+    public bool CheckHexagonalGroup(bool initialCheck)
     {
+        if (!initialCheck) {SetTouchingHexagonIndexes();}
+        
         HaveHexagonalGroup = false;
         hexagonalGroup = new List<int[]>();
 
@@ -99,7 +107,7 @@ public class Hexagon : MonoBehaviour
     {
         myTransform = null;
 
-        InitialHexagonalGroupChecker.OnHexagonCleared -= OnHexagonCleared;
+        HexagonalGroupChecker.OnHexagonCleared -= OnHexagonCleared;
     }
 
     public bool Chosen { get; set; }

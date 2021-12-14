@@ -18,15 +18,19 @@ public class BoardParametersScriptableObject : ScriptableObject
     [SerializeField] private float hexagonSpawnHeight = 10f;
     [SerializeField] private float hexagonFallingHeight = -10f;
     [SerializeField] private float oldHexagonFallingDuration = 2f;
-    [SerializeField] private float clearedHexagonUnitFallingDuration = 1f;
+    [SerializeField] private float clearedHexagonFallingDuration = 1f;
     [SerializeField] private float hexagonFallingAfterSpawnDuration = 2f;
 
     [SerializeField] private float hexagonGroupCheckDelay = 0.5f;
-    [SerializeField] private float hexagonalGroupRotateDuration = 0.5f;
+    [SerializeField] private float hexagonalGroupUnitRotateDuration = 0.5f;
 
-    public float HexagonalGroupRotateDuration => hexagonalGroupRotateDuration;
+    [SerializeField] private int hexagonalGroupRotateSpinCount = 4;
+
+
+    public int HexagonalGroupRotateSpinCount => hexagonalGroupRotateSpinCount;
+    public float HexagonalGroupUnitRotateDuration => hexagonalGroupUnitRotateDuration;
     public float HexagonGroupCheckDelay => hexagonGroupCheckDelay;
-    public float ClearedHexagonUnitFallingDuration => clearedHexagonUnitFallingDuration;
+    public float ClearedHexagonFallingDuration => clearedHexagonFallingDuration;
     public float HexagonFallingHeight => hexagonFallingHeight;
     public float OldHexagonFallingDuration => oldHexagonFallingDuration;
     public float HexagonFallingAfterSpawnDuration => hexagonFallingAfterSpawnDuration;
