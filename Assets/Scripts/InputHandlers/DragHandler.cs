@@ -15,8 +15,8 @@ public class DragHandler : MonoBehaviour
     [SerializeField] private TouchParametersScriptableObject touchParameters;
     [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
     [SerializeField] private RotatingHexagonalGroupOrderer rotatingHexagonalGroupOrderer;
-    
-    private float previousDragAngle;
+
+    private Vector3 previousDragVector;
     private bool shouldProcessDrag;
     
     private void OnEnable()
@@ -36,9 +36,7 @@ public class DragHandler : MonoBehaviour
         shouldProcessDrag = true;
         
         var dragStartPosition= eventData.pointerCurrentRaycast.worldPosition;
-        var dragStartVector = dragStartPosition - hexagonalGroupChooser.ChosenPoint ;
-        
-        previousDragAngle = Mathf.Atan2(dragStartVector.y, dragStartVector.x) * Mathf.Rad2Deg;
+        previousDragVector = dragStartPosition - hexagonalGroupChooser.ChosenPoint ;
     }
 
     private void OnPlayerDragged(PointerEventData eventData)
@@ -47,18 +45,18 @@ public class DragHandler : MonoBehaviour
         
         var currentDragPosition = eventData.pointerCurrentRaycast.worldPosition;
         var currentDragVector = currentDragPosition - hexagonalGroupChooser.ChosenPoint;
-
-        var currentDragAngle = Mathf.Atan2(currentDragVector.y, currentDragVector.x) * Mathf.Rad2Deg;
-
-        if (Mathf.Abs(currentDragAngle - previousDragAngle) > touchParameters.DragAngleThreshold)
+        
+        var dragAngle = Vector3.SignedAngle(currentDragVector, previousDragVector, Vector3.forward);
+        
+        if (Mathf.Abs(dragAngle) > touchParameters.DragAngleThreshold)
         {
-            rotatingHexagonalGroupOrderer.OrderAndRotateHexagonalGroup(currentDragAngle < previousDragAngle ? DragOrientation.Clockwise 
+            rotatingHexagonalGroupOrderer.OrderAndRotateHexagonalGroup(dragAngle > 0f ? DragOrientation.Clockwise 
                 : DragOrientation.CounterClockwise);
             shouldProcessDrag = false;
             return;
         }
 
-        previousDragAngle = currentDragAngle;
+        previousDragVector = currentDragVector;
     }
     
     private void OnDisable()
