@@ -36,7 +36,7 @@ public class LevelManager : MonoBehaviour
         
         HexagonPooler.Instance.PrepareHexagonPools();
         BoardCreator.Instance.CreateBoard();
-        hexagonalGroupChecker.CheckInitialHexagons();
+        hexagonalGroupChecker.CheckInitialHexagonGroups();
     }
 
     private void OnDisable()

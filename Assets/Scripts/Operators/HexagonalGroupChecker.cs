@@ -29,15 +29,22 @@ public class HexagonalGroupChecker : MonoBehaviour
         recentlySpawnedHexagons = new List<Hexagon>();
     }
 
-    public void CheckInitialHexagons()
+    public void CheckInitialHexagonGroups()
+    {
+        if (CheckHexagonalGroupsInAllBoard(true)) return;
+
+        OnAllInitialHexagonalGroupsCleared?.Invoke();
+    }
+
+    private bool CheckHexagonalGroupsInAllBoard(bool initialCheck)
     {
         hexagonIndexesToSetInactive.Clear();
-        
+
         for (var i = 0; i < boardHexagons.Length; i++)
         {
             for (var j = 0; j < boardHexagons[i].Count; j++)
             {
-                boardHexagons[i][j].Initialize(BoardCreator.Instance.GetHexagonYPosition(i,j));
+                boardHexagons[i][j].Initialize(BoardCreator.Instance.GetHexagonYPosition(i, j));
                 boardHexagons[i][j].HasBeenJustSpawned = false;
                 CheckHexagonalGroupAroundIndex(i, j, true);
             }
@@ -45,9 +52,13 @@ public class HexagonalGroupChecker : MonoBehaviour
 
         RemoveDuplicatesFromHexagonIndexesToSetInactiveList();
 
-        while (ClearHexagonalGroups(true)) { StartCoroutine(CheckInitialHexagonsWithDelay()); return;}
+        while (ClearHexagonalGroups(true))
+        {
+            StartCoroutine(initialCheck ? CheckInitialHexagonGroupsWithDelay() : CheckHexagonalGroupsInAllBoardWithDelay());
+            return true;
+        }
 
-        OnAllInitialHexagonalGroupsCleared?.Invoke();
+        return false;
     }
 
     private void RemoveDuplicatesFromHexagonIndexesToSetInactiveList()
@@ -61,6 +72,9 @@ public class HexagonalGroupChecker : MonoBehaviour
 
         hexagonIndexesToSetInactive.Clear();
 
+        var hexagonsChecked = new List<Hexagon>();
+        hexagonsChecked.AddRange(rotatingHexagons);
+        
         for (var i = 0; i < 3; i++)
         {
             CheckHexagonalGroupAroundIndex(rotatingHexagons[i].IndexI, rotatingHexagons[i].IndexJ, false);
@@ -68,12 +82,29 @@ public class HexagonalGroupChecker : MonoBehaviour
 
         for (var i = 0; i < hexagonIndexesToSetInactive.Count; i++)
         {
+            var hexagonToSetInactive = boardHexagons[hexagonIndexesToSetInactive[i][0]][hexagonIndexesToSetInactive[i][1]];
             
+            if (hexagonsChecked.Contains(hexagonToSetInactive)) {break;}
+            
+            CheckHexagonalGroupAroundIndex(hexagonIndexesToSetInactive[i][0], hexagonIndexesToSetInactive[i][1], false);
         }
         
         RemoveDuplicatesFromHexagonIndexesToSetInactiveList();
-        
-        return ClearHexagonalGroups(false);
+
+        if (ClearHexagonalGroups(false))
+        {
+            StartCoroutine(CheckHexagonalGroupsInAllBoardWithDelay());
+            return true;
+        }
+
+        return false;
+    }
+
+    private IEnumerator CheckHexagonalGroupsInAllBoardWithDelay()
+    {
+        yield return waitForNewHexagonsFall;
+
+        CheckHexagonalGroupsInAllBoard(false);
     }
 
     private void SetOldHexagonsHasBeenJustSpawnedToFalse()
@@ -144,18 +175,13 @@ public class HexagonalGroupChecker : MonoBehaviour
 
     private IEnumerator RemoveHexagon(Hexagon currentHexagon, int[] indexes)
     {
-        
         yield return null;
 
-        currentHexagon.MyTransform.DOMoveY(boardParameters.HexagonFallingHeight, boardParameters.ClearedHexagonFallingDuration)
-            .OnComplete(() =>
-            {
-
-            });
+        currentHexagon.MyTransform.DOMoveY(boardParameters.HexagonFallingHeight, boardParameters.ClearedHexagonFallingDuration);
+            
         HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.color);
         boardOperator.RemoveHexagonFromBoardHexagonsList(currentHexagon, indexes[0], indexes[1]);
         OnHexagonCleared?.Invoke(indexes[0], indexes[1]);
-
     }
     
     private void AddNewHexagonsToClearedColumns(List<int> clearedHexagonsInColumns)
@@ -169,11 +195,11 @@ public class HexagonalGroupChecker : MonoBehaviour
         }
     }
 
-    private IEnumerator CheckInitialHexagonsWithDelay()
+    private IEnumerator CheckInitialHexagonGroupsWithDelay()
     {
         yield return waitForNewHexagonsFall;
 
-        CheckInitialHexagons();
+        CheckInitialHexagonGroups();
     }
 
     private Hexagon AddNewHexagon(int i, int j)
