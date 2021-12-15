@@ -249,7 +249,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardParameters: {fileID: 11400000, guid: c86c4e820f6d44eacbf28d18841059a3, type: 2}
-  hexagonContainerTransform: {fileID: 2057052774}
+  hexagonalPieceContainerTransform: {fileID: 2057052774}
 --- !u!1 &1152852645
 GameObject:
   m_ObjectHideFlags: 0
@@ -348,7 +348,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2057052774}
   m_Layer: 9
-  m_Name: HexagonContainer
+  m_Name: HexagonalPieceContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -556,6 +556,10 @@ PrefabInstance:
       propertyPath: currentHexagonalGroupTransform
       value: 
       objectReference: {fileID: 2068824145}
+    - target: {fileID: 3242579088492431950, guid: 696c10ef409c04c3593aa5dc43543067, type: 3}
+      propertyPath: scoreManager
+      value: 
+      objectReference: {fileID: 1152852647}
     - target: {fileID: 3242579088492431950, guid: 696c10ef409c04c3593aa5dc43543067, type: 3}
       propertyPath: hexagonChooser
       value: 

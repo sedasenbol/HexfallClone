@@ -106,7 +106,7 @@ public class BoardCreator : Singleton<BoardCreator>
             
             for (var j = 0; j < boardParameters.RowCount; j++)
             {
-                var hexagonTransform = HexagonPooler.Instance.SpawnFromPool(GetRandomColor(), GetHexagonPosition(i, j));
+                var hexagonTransform = HexagonPooler.Instance.SpawnFromPool(GetRandomColor(), GetHexagonPosition(i, j), false);
                 hexagonTransform.localScale = hexagonScale;
                 
                 var hexagon = hexagonTransform.GetComponent<Hexagon>();

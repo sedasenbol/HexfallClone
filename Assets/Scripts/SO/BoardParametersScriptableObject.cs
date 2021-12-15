@@ -9,7 +9,9 @@ public class BoardParametersScriptableObject : ScriptableObject
     [SerializeField] private float boardMarginHorizontal = 0.5f;
 
     [SerializeField] private Transform hexagonTransform;
-    [SerializeField] private int poolSizePerColor = 100;
+    [SerializeField] private Transform bombTransform;
+
+    [SerializeField] private int bombSpawnCountPerColor = 5;
     
     [SerializeField] private int rowCount;
     [SerializeField] private int columnCount;
@@ -37,7 +39,8 @@ public class BoardParametersScriptableObject : ScriptableObject
     public float HexagonSpawnHeight => hexagonSpawnHeight;
     public float BoardMarginVertical => boardMarginVertical;
     public float BoardMarginHorizontal => boardMarginHorizontal;
-    public int PoolSizePerColor => poolSizePerColor;
+    public int BombSpawnCountPerColor => bombSpawnCountPerColor;
+    public Transform BombTransform => bombTransform;
     public Transform HexagonTransform => hexagonTransform;
     public int RowCount => rowCount;
     public int ColumnCount => columnCount;

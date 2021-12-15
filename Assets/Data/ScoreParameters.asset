@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: ScoreParameters
   m_EditorClassIdentifier: 
   scorePerClearedHexagon: 5
-  bombHexagonSpawnScore: 1000
+  bombHexagonSpawnScore: 25

@@ -3,24 +3,46 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class HexagonPooler : Singleton<HexagonPooler>
 {
     [SerializeField] private BoardParametersScriptableObject boardParameters;
-    [SerializeField] private Transform hexagonContainerTransform;
+    [SerializeField] private Transform hexagonalPieceContainerTransform;
 
     private Dictionary<Color, Queue<GameObject>> hexagonPoolDict;
+    private Dictionary<Color, Queue<GameObject>> bombPoolDict;
 
+    private int poolSizePerHexagonColor;
+    
     public void PrepareHexagonPools()
     {
+        SetPoolSizePerHexagonColor();
         InitializeHexagonPoolDict();
+        InitializeBombPoolDict();
     }
-    
-    public Transform SpawnFromPool(Color color, Vector3 position)
+
+    private void SetPoolSizePerHexagonColor()
+    {
+        poolSizePerHexagonColor = boardParameters.RowCount * boardParameters.ColumnCount;
+    }
+
+    public Transform SpawnFromPool(Color color, Vector3 position, bool shouldSpawnBomb)
     {
         if (hexagonPoolDict[color].Count == 0) { Debug.LogError($"Pool size of {color} item is insufficient."); return null; }
+
+        GameObject objectSpawned;
         
-        var objectSpawned = hexagonPoolDict[color].Dequeue();
+        if (shouldSpawnBomb)
+        {
+            objectSpawned = bombPoolDict[color].Dequeue();
+            shouldSpawnBomb = false;
+        }
+        else
+        {
+            objectSpawned = hexagonPoolDict[color].Dequeue();    
+        }
+        
         objectSpawned.SetActive(true);
         
         var objectSpawnedTransform = objectSpawned.transform;
@@ -29,55 +51,53 @@ public class HexagonPooler : Singleton<HexagonPooler>
         return objectSpawnedTransform;
     }
 
-    public void AddItemBackToThePool(GameObject itemGameObject, Color color)
+    public void AddItemBackToThePool(GameObject hexagonalPieceGameObject, Color color)
     {
-        itemGameObject.SetActive(false);
-        hexagonPoolDict[color].Enqueue(itemGameObject);
+        hexagonalPieceGameObject.SetActive(false);
+        hexagonPoolDict[color].Enqueue(hexagonalPieceGameObject);
     }
     
-    private void OnEnable()
-    {
-        GameManager.OnGameSceneLoaded += OnGameSceneLoaded;
-    }
-
-    private void OnGameSceneLoaded()
-    {
-        InitializeHexagonPoolDict();
-    }
-
     private void InitializeHexagonPoolDict()
     {
         hexagonPoolDict = new Dictionary<Color, Queue<GameObject>>();
         
-        var poolSize = boardParameters.PoolSizePerColor;
+        InitializeHexagonalPiecePoolDict(hexagonPoolDict, true);
+    }
+
+    private void InitializeBombPoolDict()
+    {
+        bombPoolDict = new Dictionary<Color, Queue<GameObject>>();
         
+        InitializeHexagonalPiecePoolDict(bombPoolDict, false);
+    }
+    
+    private void InitializeHexagonalPiecePoolDict(Dictionary<Color, Queue<GameObject>> hexagonalPiecePoolDict, bool isHexagon)
+    {
         for (var i = 0; i < boardParameters.ColorList.Count; i++)
         {
-            var newHexagonPool = new Queue<GameObject>(poolSize);
+            var poolSize = isHexagon ? poolSizePerHexagonColor : boardParameters.BombSpawnCountPerColor;
+            
+            var newHexagonalPiecePool = new Queue<GameObject>();
 
-            InitializeHexagonPool(poolSize, i, newHexagonPool);
+            InitializeHexagonPool(poolSize, boardParameters.ColorList[i], newHexagonalPiecePool, isHexagon);
 
-            hexagonPoolDict[boardParameters.ColorList[i]] = newHexagonPool;
+            hexagonalPiecePoolDict[boardParameters.ColorList[i]] = newHexagonalPiecePool;
         }
     }
 
-    private void InitializeHexagonPool(int poolSize, int i, Queue<GameObject> newHexagonPool)
+    private void InitializeHexagonPool(int poolSize, Color color, Queue<GameObject> newHexagonPool, bool isHexagon)
     {
         for (var j = 0; j < poolSize; j++)
         {
-            var obj = Instantiate(boardParameters.HexagonTransform, hexagonContainerTransform).gameObject;
+            var hexagonalPieceTransform = isHexagon ? boardParameters.HexagonTransform : boardParameters.BombTransform;
+            
+            var obj = Instantiate(hexagonalPieceTransform, hexagonalPieceContainerTransform).gameObject;
             obj.SetActive(false);
-            obj.GetComponentInChildren<SpriteRenderer>().color = boardParameters.ColorList[i];
-            obj.GetComponent<Hexagon>().color = boardParameters.ColorList[i];
+            obj.GetComponentInChildren<SpriteRenderer>().color = color;
+            obj.GetComponent<Hexagon>().color = color;
             
             newHexagonPool.Enqueue(obj);
         }
     }
-
-    private void OnDisable()
-    {
-        GameManager.OnGameSceneLoaded -= OnGameSceneLoaded;
-
-        hexagonPoolDict = null;
-    }
+    
 }

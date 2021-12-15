@@ -9,11 +9,11 @@ public class ScoreManager : MonoBehaviour
     
     private float score;
     private bool active;
+    private int bombCounter = 1;
     
     private void OnEnable()
     {
         HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
-        HexagonalGroupChecker.OnHexagonCleared += OnHexagonCleared;
     }
 
     private void OnAllInitialHexagonalGroupsCleared()
@@ -21,18 +21,26 @@ public class ScoreManager : MonoBehaviour
         active = true;
     }
     
-    private void OnHexagonCleared(int i, int j)
+    public void UpdateScore()
     {
         if (!active) {return;}
         
         score += scoreParameters.ScorePerClearedHexagon;
         UIManager.Instance.UpdateScore(score);
     }
+
+    public bool ShouldSpawnBomb()
+    {
+        if (score < bombCounter * scoreParameters.BombHexagonSpawnScore) {return false;}
+
+        bombCounter++;
+        
+        return true;
+    }
     
     private void OnDisable()
     {
         HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
-        HexagonalGroupChecker.OnHexagonCleared -= OnHexagonCleared;
     }
 
     public float Score => score;

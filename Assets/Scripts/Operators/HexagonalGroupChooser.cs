@@ -58,6 +58,9 @@ public class HexagonalGroupChooser : MonoBehaviour
         
         if (commonNeighbours.Count == 0) { return;}
         if (commonNeighbours[0] == null) { return;}
+        
+        hasChosenHexagonGroup = true;
+
         if (commonNeighbours.Count == 1) { chosenHexagons[2] = commonNeighbours[0].GetComponentInParent<Hexagon>(); return;}
         if (commonNeighbours[1] == null) { chosenHexagons[2] = commonNeighbours[0].GetComponentInParent<Hexagon>(); return;}
 
@@ -65,8 +68,6 @@ public class HexagonalGroupChooser : MonoBehaviour
                             Vector3.SqrMagnitude(commonNeighbours[1].transform.position - rayOrigin) 
             ? commonNeighbours[1].GetComponentInParent<Hexagon>()
             : commonNeighbours[0].GetComponentInParent<Hexagon>();
-
-        hasChosenHexagonGroup = true;
     }
 
     private bool FindTwoChosenHexagons(Collider2D[] collider2Ds, int overlapCircle, Vector3 rayOrigin)

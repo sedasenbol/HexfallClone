@@ -14,6 +14,7 @@ public class HexagonalGroupChecker : MonoBehaviour
     [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
     [SerializeField] private BoardParametersScriptableObject boardParameters;
     [SerializeField] private BoardOperator boardOperator;
+    [SerializeField] private ScoreManager scoreManager;
     
     private YieldInstruction waitForNewHexagonsFall;
     private List<Hexagon>[] boardHexagons => BoardCreator.Instance.BoardHexagons;
@@ -178,7 +179,8 @@ public class HexagonalGroupChecker : MonoBehaviour
         yield return null;
 
         currentHexagon.MyTransform.DOMoveY(boardParameters.HexagonFallingHeight, boardParameters.ClearedHexagonFallingDuration);
-            
+        
+        scoreManager.UpdateScore();
         HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.color);
         boardOperator.RemoveHexagonFromBoardHexagonsList(currentHexagon, indexes[0], indexes[1]);
         OnHexagonCleared?.Invoke(indexes[0], indexes[1]);
@@ -214,7 +216,7 @@ public class HexagonalGroupChecker : MonoBehaviour
             z = 0f
         };
 
-        var hexagonTransform = HexagonPooler.Instance.SpawnFromPool(randomColor, spawnPosition);
+        var hexagonTransform = HexagonPooler.Instance.SpawnFromPool(randomColor, spawnPosition, scoreManager.ShouldSpawnBomb());
         hexagonTransform.localScale = BoardCreator.Instance.HexagonScale;
         var hexagon = hexagonTransform.GetComponent<Hexagon>();
         hexagon.HasBeenJustSpawned = true;
