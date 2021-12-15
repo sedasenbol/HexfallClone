@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour
+public class UIManager : Singleton<UIManager>
 {
     public static event Action OnPlayButtonClicked;
     public static event Action OnRestartButtonClicked;
@@ -13,7 +14,8 @@ public class UIManager : MonoBehaviour
     public static event Action OnHomePageButtonClicked;
 
     [SerializeField] private LevelStartParametersScriptableObject levelStartParameters;
-    
+
+    [SerializeField] private TMP_Text scoreText;
     [SerializeField] private GameObject playButton;
     [SerializeField] private GameObject restartButton;
     [SerializeField] private GameObject pauseButton;
@@ -22,6 +24,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject startCombiningHexagonsText;
 
     private YieldInstruction startCombiningHexagonsTextDelay;
+
+    public void UpdateScore(float score)
+    {
+        scoreText.text = score.ToString("F0");
+    }
     
     private void OnEnable()
     {
@@ -29,6 +36,7 @@ public class UIManager : MonoBehaviour
 
         startCombiningHexagonsTextDelay = new WaitForSeconds(levelStartParameters.StartCombiningHexagonsTextDelay);
         
+        scoreText.gameObject.SetActive(false);
         playButton.SetActive(true);
         restartButton.SetActive(false);
         pauseButton.SetActive(false);
@@ -39,6 +47,9 @@ public class UIManager : MonoBehaviour
 
     private void OnAllInitialHexagonalGroupsCleared()
     {
+        scoreText.gameObject.SetActive(true);
+        scoreText.text = "0";
+
         startCombiningHexagonsText.SetActive(true);
 
         StartCoroutine(DeactivateStartCombiningHexagonsTextWithDelay());
@@ -63,6 +74,7 @@ public class UIManager : MonoBehaviour
 
     public void HandleRestartButtonClick()
     {
+        scoreText.gameObject.SetActive(false);
         startCombiningHexagonsText.SetActive(false);
         
         OnRestartButtonClicked?.Invoke();
@@ -91,6 +103,7 @@ public class UIManager : MonoBehaviour
 
     public void HandleHomePageButtonClick()
     {
+        scoreText.gameObject.SetActive(false);
         playButton.SetActive(true);
         resumeButton.SetActive(false);
         homePageButton.SetActive(false);

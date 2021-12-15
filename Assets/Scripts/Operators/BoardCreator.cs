@@ -10,23 +10,8 @@ public enum Orientation
     Vertical
 }
 
-public class BoardCreator : MonoBehaviour
+public class BoardCreator : Singleton<BoardCreator>
 {
-    #region Singleton
-
-    private static BoardCreator instance;
-    public static BoardCreator Instance => instance;
-
-
-    private void Awake()
-    {
-        if (instance != null && instance != this) { Destroy(this.gameObject); return; } 
-        
-        instance = this;
-    }
-
-    #endregion
-    
     [SerializeField] private BoardParametersScriptableObject boardParameters;
 
     private Camera mainCam;

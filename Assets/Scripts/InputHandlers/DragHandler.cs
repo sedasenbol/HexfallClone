@@ -13,7 +13,8 @@ public class DragHandler : MonoBehaviour
     public static event Action<DragOrientation> OnPlayerDragProcessed; 
 
     [SerializeField] private TouchParametersScriptableObject touchParameters;
-    [SerializeField] private HexagonChooser hexagonChooser;
+    [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
+    [SerializeField] private RotatingHexagonalGroupOrderer rotatingHexagonalGroupOrderer;
     
     private float previousDragAngle;
     private bool shouldProcessDrag;
@@ -35,7 +36,7 @@ public class DragHandler : MonoBehaviour
         shouldProcessDrag = true;
         
         var dragStartPosition= eventData.pointerCurrentRaycast.worldPosition;
-        var dragStartVector = dragStartPosition - hexagonChooser.ChosenPoint ;
+        var dragStartVector = dragStartPosition - hexagonalGroupChooser.ChosenPoint ;
         
         previousDragAngle = Mathf.Atan2(dragStartVector.y, dragStartVector.x) * Mathf.Rad2Deg;
     }
@@ -45,13 +46,14 @@ public class DragHandler : MonoBehaviour
         if (!shouldProcessDrag) {return;}
         
         var currentDragPosition = eventData.pointerCurrentRaycast.worldPosition;
-        var currentDragVector = currentDragPosition - hexagonChooser.ChosenPoint;
+        var currentDragVector = currentDragPosition - hexagonalGroupChooser.ChosenPoint;
 
         var currentDragAngle = Mathf.Atan2(currentDragVector.y, currentDragVector.x) * Mathf.Rad2Deg;
 
         if (Mathf.Abs(currentDragAngle - previousDragAngle) > touchParameters.DragAngleThreshold)
         {
-            OnPlayerDragProcessed?.Invoke(currentDragAngle < previousDragAngle ? DragOrientation.Clockwise : DragOrientation.CounterClockwise);
+            rotatingHexagonalGroupOrderer.OrderAndRotateHexagonalGroup(currentDragAngle < previousDragAngle ? DragOrientation.Clockwise 
+                : DragOrientation.CounterClockwise);
             shouldProcessDrag = false;
             return;
         }

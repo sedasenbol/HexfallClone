@@ -8,7 +8,8 @@ using UnityEngine.EventSystems;
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] private LevelStartParametersScriptableObject levelStartParameters;
- 
+    [SerializeField] private HexagonalGroupChecker hexagonalGroupChecker;
+    
     [SerializeField] private GameObject inputHandler;
     
     private void Awake()
@@ -35,7 +36,7 @@ public class LevelManager : MonoBehaviour
         
         HexagonPooler.Instance.PrepareHexagonPools();
         BoardCreator.Instance.CreateBoard();
-        HexagonalGroupChecker.Instance.CheckInitialHexagons();
+        hexagonalGroupChecker.CheckInitialHexagons();
     }
 
     private void OnDisable()

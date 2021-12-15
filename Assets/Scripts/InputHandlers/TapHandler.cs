@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 
 public class TapHandler : MonoBehaviour
 {
-    [SerializeField] private HexagonChooser hexagonChooser;
+    [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
     
     private Collider2D[] collider2Ds;
     private int hexagonLayer;
@@ -27,7 +27,7 @@ public class TapHandler : MonoBehaviour
 
         if (!beforeFirstValidTap)
         {
-            hexagonChooser.SetAllHexagonScalesToDefault();
+            hexagonalGroupChooser.SetAllHexagonScalesToDefault();
         }
         
         var rayOrigin = eventData.pointerCurrentRaycast.worldPosition;
@@ -37,7 +37,7 @@ public class TapHandler : MonoBehaviour
         
         if (overlapCircle < 3) {return;}
         
-        hexagonChooser.OnPlayerTapProcessed(collider2Ds, overlapCircle, rayOrigin);
+        hexagonalGroupChooser.OnPlayerTapProcessed(collider2Ds, overlapCircle, rayOrigin);
 
         if (beforeFirstValidTap) { beforeFirstValidTap = false; }
     }

@@ -17,8 +17,6 @@ public class Hexagon : MonoBehaviour
     private void OnEnable()
     {
         HexagonalGroupChecker.OnHexagonCleared += OnHexagonCleared;
-        
-        Initialize();
     }
 
     private void OnHexagonCleared(int i, int j)
@@ -29,13 +27,9 @@ public class Hexagon : MonoBehaviour
         DOTween.Kill(myTransform);
         CurrentTargetIndexJ--;
         //CurrentTargetHeight -= BoardCreator.Instance.HeightDifferenceBetweenHexagons;
-
-        if (CurrentTargetIndexJ < 0 || CurrentTargetIndexJ > boardParameters.RowCount - 1) Debug.Log(i + " " + CurrentTargetIndexJ);
-
+        
         CurrentTargetHeight = BoardCreator.Instance.GetHexagonYPosition(i, CurrentTargetIndexJ);
-        
-        //if (CurrentTargetIndexJ != CurrentTargetHeight2) {Debug.Log("that: " + i + " " +j);}
-        
+
         myTransform.DOMoveY(CurrentTargetHeight, boardParameters.OldHexagonFallingDuration).OnComplete(() =>
         {
             boardOperator.RemoveHexagonFromBoardHexagonsList(this, IndexI, IndexJ);
@@ -43,13 +37,14 @@ public class Hexagon : MonoBehaviour
             boardOperator.AddHexagonToBoardHexagonsList(this, IndexI, IndexJ);
         });
         
+
     }
 
-    public void Initialize()
+    public void Initialize(float currentTargetHeight)
     {
         Active = true;
         myTransform = transform;
-        CurrentTargetHeight = myTransform.position.y;
+        CurrentTargetHeight = currentTargetHeight;
         CurrentTargetIndexJ = IndexJ;
         SetTouchingHexagonIndexes();
     }

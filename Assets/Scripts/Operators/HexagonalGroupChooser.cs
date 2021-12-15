@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class HexagonChooser : MonoBehaviour
+public class HexagonalGroupChooser : MonoBehaviour
 {
+    public static event Action OnAnotherHexagonalGroupChosen;
+    
     [SerializeField] private TouchParametersScriptableObject touchParameters;
   
     private Hexagon[] chosenHexagons;
@@ -27,7 +29,11 @@ public class HexagonChooser : MonoBehaviour
         FindThirdHexagon(collider2Ds, rayOrigin);
         HandleThreeChosenHexagons();
 
-        if (!beforeFirstValidTap) {return;}
+        if (!beforeFirstValidTap)
+        {
+            OnAnotherHexagonalGroupChosen?.Invoke();
+            return;
+        }
         beforeFirstValidTap = false;
     }
 
@@ -36,7 +42,7 @@ public class HexagonChooser : MonoBehaviour
         SetAllHexagonScalesToDefault();
         SetOldHexagonsChosenToFalse();
         
-        Array.Clear(chosenHexagons, 0, 3);
+        Array.Clear(chosenHexagons, 0, chosenHexagons.Length);
     }
     
     private void FindThirdHexagon(Collider2D[] collider2Ds, Vector3 rayOrigin)

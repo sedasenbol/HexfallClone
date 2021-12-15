@@ -1,55 +1,103 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 
 public class HexagonalGroupRotator : MonoBehaviour
 {
     [SerializeField] private BoardParametersScriptableObject boardParameters;
-
-    [SerializeField] private HexagonChooser hexagonChooser;
+    [SerializeField] private HexagonalGroupChecker hexagonalGroupChecker;
     [SerializeField] private BoardOperator boardOperator;
     
+    private int hexagonalGroupRotateCounter;
+    private YieldInstruction waitForPreviousRotateFinish;
+    //private List<Hexagon>[] boardHexagons => BoardCreator.Instance.BoardHexagons;
+
     private void Awake()
     {
-        DragHandler.OnPlayerDragProcessed += OnPlayerDragProcessed;
+        waitForPreviousRotateFinish = new WaitForSeconds(boardParameters.HexagonalGroupUnitRotateDuration);
     }
 
-    private void OnPlayerDragProcessed(DragOrientation orientation)
+    private void OnEnable()
     {
-        if (!hexagonChooser.HasChosenHexagonGroup) {return;}
-        
-        OrderChosenHexagons(orientation, out var hexagonTransforms, out var orderedIndexes);
-
-        boardOperator.RotateAndCheckHexagonalGroupMultipleTimes(hexagonChooser.ChosenHexagons, hexagonTransforms, orderedIndexes);
+        HexagonalGroupChooser.OnAnotherHexagonalGroupChosen += OnAnotherHexagonalGroupChosen;
     }
 
-    private void OrderChosenHexagons(DragOrientation orientation, out Transform[] hexagonTransforms, out int[] orderedIndexes)
+    private void OnAnotherHexagonalGroupChosen()
     {
-        var currentHexagonAngles = new float[3];
-        hexagonTransforms = new Transform[3];
-        orderedIndexes = new int[3];
-
-        for (var i = 0; i < 3; i++)
-        {
-            hexagonTransforms[i] = hexagonChooser.ChosenHexagons[i].MyTransform;
-
-            currentHexagonAngles[i] = Vector3.SignedAngle(hexagonChooser.ChosenPoint, hexagonTransforms[i].position, Vector3.forward);
-        }
-
-        for (var i = 0; i < 3; i++)
-        {
-            var currentMinIndex = Array.IndexOf(currentHexagonAngles,
-                orientation == DragOrientation.Clockwise ? currentHexagonAngles.Max() : currentHexagonAngles.Min());
-            orderedIndexes[i] = currentMinIndex;
-
-            currentHexagonAngles[currentMinIndex] = orientation == DragOrientation.Clockwise ? -Mathf.Infinity : Mathf.Infinity;
-        }
+        StopPreviouslyRotatingHexagonalGroup();
     }
 
+    public void StopPreviouslyRotatingHexagonalGroup()
+    {
+        DOTween.CompleteAll();
+        StopAllCoroutines();
+    }
     
+    public void RotateAndCheckHexagonalGroupMultipleTimes(Hexagon[] chosenHexagons, Transform[] hexagonTransforms, int[] 
+    orderedIndexes)
+    {
+        hexagonalGroupRotateCounter = 0;
+
+        RotateAndCheckHexagonalGroup(chosenHexagons, hexagonTransforms, orderedIndexes);
+    }
+
+    private void RotateAndCheckHexagonalGroup(Hexagon[] chosenHexagons, Transform[] hexagonTransforms, int[] orderedIndexes)
+    {
+        if (hexagonalGroupRotateCounter == boardParameters.HexagonalGroupRotateSpinCount * 3) {return;}
+        
+        hexagonalGroupRotateCounter++;
+        
+        RotateHexagonalGroup(chosenHexagons, hexagonTransforms, orderedIndexes);
+
+        StartCoroutine(CheckHexagonalGroupAfterRotateWithDelay(chosenHexagons, hexagonTransforms, orderedIndexes));
+    }
+
+    private IEnumerator CheckHexagonalGroupAfterRotateWithDelay(Hexagon[] chosenHexagons, Transform[] hexagonTransforms, int[] 
+    orderedIndexes)
+    {
+        yield return waitForPreviousRotateFinish;
+
+        if (hexagonalGroupChecker.CheckHexagonalGroupAfterRotate(chosenHexagons)) { yield break; }
+
+        RotateAndCheckHexagonalGroup(chosenHexagons, hexagonTransforms, orderedIndexes);
+    }
+
+    private void RotateHexagonalGroup(Hexagon[] chosenHexagons, Transform[] hexagonTransforms, int[] orderedIndexes)
+    {
+        var firstHexagonPosition = hexagonTransforms[orderedIndexes[0]].position;
+        var firsHexagonIndexes = new int[] { chosenHexagons[orderedIndexes[0]].IndexI, chosenHexagons[orderedIndexes[0]].IndexJ };
+
+        for (var i = 0; i < 2; i++)
+        {
+            var currentHexagon = chosenHexagons[orderedIndexes[i]];
+            var nextHexagon = chosenHexagons[orderedIndexes[i + 1]];
+
+            var currentHexagonTransform = hexagonTransforms[orderedIndexes[i]];
+            var nextHexagonTransform = hexagonTransforms[orderedIndexes[i + 1]];
+
+            currentHexagonTransform.DOMove(nextHexagonTransform.position, boardParameters.HexagonalGroupUnitRotateDuration);
+            
+            currentHexagon.IndexI = nextHexagon.IndexI;
+            currentHexagon.IndexJ = nextHexagon.IndexJ;
+            currentHexagon.CurrentTargetIndexJ = nextHexagon.IndexJ;
+
+            boardOperator.AddHexagonToBoardHexagonsList(currentHexagon, nextHexagon.IndexI,nextHexagon.IndexJ);
+        }
+
+        hexagonTransforms[orderedIndexes[2]].DOMove(firstHexagonPosition, boardParameters.HexagonalGroupUnitRotateDuration);
+        
+        chosenHexagons[orderedIndexes[2]].IndexI = firsHexagonIndexes[0];
+        chosenHexagons[orderedIndexes[2]].IndexJ = firsHexagonIndexes[1];
+        chosenHexagons[orderedIndexes[2]].CurrentTargetIndexJ = firsHexagonIndexes[1];
+        
+        boardOperator.AddHexagonToBoardHexagonsList(chosenHexagons[orderedIndexes[2]], firsHexagonIndexes[0],firsHexagonIndexes[1]);
+    }
     
     private void OnDisable()
     {
-        DragHandler.OnPlayerDragProcessed -= OnPlayerDragProcessed;
+        HexagonalGroupChooser.OnAnotherHexagonalGroupChosen -= OnAnotherHexagonalGroupChosen;
     }
 }

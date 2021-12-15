@@ -4,7 +4,7 @@ using UnityEngine;
 public class LevelStartParametersScriptableObject : ScriptableObject
 {
     [SerializeField] private int tweenersCapacity = 100;
-    [SerializeField] private int sequencesCapacity = 0;
+    [SerializeField] private int sequencesCapacity = 5;
 
     [SerializeField] private float initialHexagonCheckDelay = 0.5f;
     [SerializeField] private float startCombiningHexagonsTextDelay = 1.5f;

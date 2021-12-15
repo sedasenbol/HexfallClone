@@ -4,24 +4,8 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class HexagonPooler : MonoBehaviour
+public class HexagonPooler : Singleton<HexagonPooler>
 {
-
-    #region Singleton
-
-    private static HexagonPooler instance;
-    public static HexagonPooler Instance => instance;
-
-
-    private void Awake()
-    {
-        if (instance != null && instance != this) { Destroy(this.gameObject); return; } 
-        
-        instance = this;
-    }
-
-    #endregion
-
     [SerializeField] private BoardParametersScriptableObject boardParameters;
     [SerializeField] private Transform hexagonContainerTransform;
 
@@ -95,6 +79,5 @@ public class HexagonPooler : MonoBehaviour
         GameManager.OnGameSceneLoaded -= OnGameSceneLoaded;
 
         hexagonPoolDict = null;
-        instance = null;
     }
 }

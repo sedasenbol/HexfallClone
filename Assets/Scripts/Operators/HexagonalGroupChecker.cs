@@ -10,22 +10,8 @@ public class HexagonalGroupChecker : MonoBehaviour
 {
     public static event Action<int, int> OnHexagonCleared;
     public static event Action OnAllInitialHexagonalGroupsCleared;
-    
-    #region Singleton
 
-    private static HexagonalGroupChecker instance;
-    public static HexagonalGroupChecker Instance => instance;
-   
-    private void Awake()
-    {
-        if (instance != null && instance != this) { Destroy(this.gameObject); return; } 
-        
-        instance = this;
-    }
-
-    #endregion
-
-    [SerializeField] private HexagonChooser hexagonChooser;
+    [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
     [SerializeField] private BoardParametersScriptableObject boardParameters;
     [SerializeField] private BoardOperator boardOperator;
     
@@ -37,7 +23,7 @@ public class HexagonalGroupChecker : MonoBehaviour
     private void OnEnable()
     {
         waitForNewHexagonsFall = new WaitForSeconds(boardParameters.ClearedHexagonFallingDuration + boardParameters
-        .HexagonFallingAfterSpawnDuration + boardParameters.HexagonGroupCheckDelay);
+        .HexagonFallingAfterSpawnDuration + boardParameters.InitialHexagonGroupCheckDelay);
         
         hexagonIndexesToSetInactive = new List<int[]>();
         recentlySpawnedHexagons = new List<Hexagon>();
@@ -51,7 +37,7 @@ public class HexagonalGroupChecker : MonoBehaviour
         {
             for (var j = 0; j < boardHexagons[i].Count; j++)
             {
-                boardHexagons[i][j].Initialize();
+                boardHexagons[i][j].Initialize(BoardCreator.Instance.GetHexagonYPosition(i,j));
                 boardHexagons[i][j].HasBeenJustSpawned = false;
                 CheckHexagonalGroupAroundIndex(i, j, true);
             }
@@ -80,6 +66,11 @@ public class HexagonalGroupChecker : MonoBehaviour
             CheckHexagonalGroupAroundIndex(rotatingHexagons[i].IndexI, rotatingHexagons[i].IndexJ, false);
         }
 
+        for (var i = 0; i < hexagonIndexesToSetInactive.Count; i++)
+        {
+            
+        }
+        
         RemoveDuplicatesFromHexagonIndexesToSetInactiveList();
         
         return ClearHexagonalGroups(false);
@@ -146,7 +137,7 @@ public class HexagonalGroupChecker : MonoBehaviour
         recentlySpawnedHexagons.Clear();
         AddNewHexagonsToClearedColumns(clearedHexagonsInColumns);
 
-        if (cleared && !initialHexagonCheck) { hexagonChooser.ClearChosenHexagons(); }
+        if (cleared && !initialHexagonCheck) { hexagonalGroupChooser.ClearChosenHexagons(); }
         
         return cleared;
     }
@@ -154,16 +145,16 @@ public class HexagonalGroupChecker : MonoBehaviour
     private IEnumerator RemoveHexagon(Hexagon currentHexagon, int[] indexes)
     {
         
+        yield return null;
 
         currentHexagon.MyTransform.DOMoveY(boardParameters.HexagonFallingHeight, boardParameters.ClearedHexagonFallingDuration)
             .OnComplete(() =>
             {
-                HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.color);
-                OnHexagonCleared?.Invoke(indexes[0], indexes[1]);
-                boardOperator.RemoveHexagonFromBoardHexagonsList(currentHexagon, indexes[0], indexes[1]);
+
             });
-        
-        yield return null;
+        HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.color);
+        boardOperator.RemoveHexagonFromBoardHexagonsList(currentHexagon, indexes[0], indexes[1]);
+        OnHexagonCleared?.Invoke(indexes[0], indexes[1]);
 
     }
     
@@ -203,9 +194,9 @@ public class HexagonalGroupChecker : MonoBehaviour
         hexagon.HasBeenJustSpawned = true;
         hexagon.IndexI = i;
         hexagon.IndexJ = j;
-        hexagon.Initialize();
+        hexagon.Initialize(finalPosition.y);
         hexagonTransform.DOMoveY(finalPosition.y, boardParameters.HexagonFallingAfterSpawnDuration);
-        hexagon.CurrentTargetHeight = finalPosition.y;
+        //hexagon.CurrentTargetHeight = finalPosition.y;
 
         hexagon.color = randomColor;
         boardOperator.AddHexagonToBoardHexagonsList(hexagon, i, j);

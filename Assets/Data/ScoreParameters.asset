@@ -9,10 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61ab4fbca12e24b238850bebdf440bad, type: 3}
-  m_Name: LevelStartParameters
+  m_Script: {fileID: 11500000, guid: 1e5005d3c89d841919c83ecf68cac73f, type: 3}
+  m_Name: ScoreParameters
   m_EditorClassIdentifier: 
-  tweenersCapacity: 300
-  sequencesCapacity: 5
-  initialHexagonCheckDelay: 0.5
-  startCombiningHexagonsTextDelay: 1.5
+  scorePerClearedHexagon: 5
+  bombHexagonSpawnScore: 1000
