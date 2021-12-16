@@ -21,6 +21,8 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private GameObject pauseButton;
     [SerializeField] private GameObject resumeButton;
     [SerializeField] private GameObject homePageButton;
+    [SerializeField] private GameObject gameOverRestartButton;
+    [SerializeField] private TMP_Text gameOverScoreText;
     [SerializeField] private GameObject startCombiningHexagonsText;
 
     private YieldInstruction startCombiningHexagonsTextDelay;
@@ -76,6 +78,9 @@ public class UIManager : Singleton<UIManager>
     {
         scoreText.gameObject.SetActive(false);
         startCombiningHexagonsText.SetActive(false);
+        gameOverRestartButton.SetActive(false);
+        gameOverScoreText.gameObject.SetActive(false);
+        homePageButton.SetActive(false);
         
         OnRestartButtonClicked?.Invoke();
     }
@@ -106,7 +111,10 @@ public class UIManager : Singleton<UIManager>
         scoreText.gameObject.SetActive(false);
         playButton.SetActive(true);
         resumeButton.SetActive(false);
+        restartButton.SetActive(false);
         homePageButton.SetActive(false);
+        gameOverRestartButton.SetActive(false);
+        gameOverScoreText.gameObject.SetActive(false);
         
         OnHomePageButtonClicked?.Invoke();
     }
@@ -114,5 +122,18 @@ public class UIManager : Singleton<UIManager>
     private void OnDisable()
     {
         HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
+    }
+
+    public void LoadGameOverScreen(float score)
+    {
+        pauseButton.SetActive(false);
+        resumeButton.SetActive(false);
+        restartButton.SetActive(false);
+        homePageButton.SetActive(true);
+        scoreText.gameObject.SetActive(false);
+        gameOverRestartButton.SetActive(true);
+        gameOverScoreText.gameObject.SetActive(true);
+
+        gameOverScoreText.text = $"Your score is: {score}";
     }
 }

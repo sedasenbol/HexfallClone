@@ -20,6 +20,13 @@ public class GameManager : MonoBehaviour
         UIManager.OnHomePageButtonClicked += LoadHomePage;
         
         SceneManager.sceneLoaded += OnSceneLoaded;
+        LevelManager.OnGameOver += OnGameOver;
+    }
+
+    private void OnGameOver(float score)
+    {
+        gameState.CurrentState = GameState.State.Over;
+        UIManager.Instance.LoadGameOverScreen(score);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
@@ -35,7 +42,7 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene((int) GameState.Scene.Game, LoadSceneMode.Additive);
         
         gameState.CurrentScene = GameState.Scene.Game;
-        gameState.CurrentState = GameState.State.OnPlay;
+        gameState.CurrentState = GameState.State.Play;
     }
 
     private void RestartGame()
@@ -56,7 +63,7 @@ public class GameManager : MonoBehaviour
     private void ResumeGame()
     {
         Time.timeScale = 1f;
-        gameState.CurrentState = GameState.State.OnPlay;
+        gameState.CurrentState = GameState.State.Play;
     }
 
     private void LoadHomePage()
@@ -76,5 +83,6 @@ public class GameManager : MonoBehaviour
         UIManager.OnHomePageButtonClicked -= LoadHomePage;
         
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        LevelManager.OnGameOver -= OnGameOver;
     }
 }

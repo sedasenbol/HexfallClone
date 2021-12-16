@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
+using Random = System.Random;
 
 public class HexagonPooler : Singleton<HexagonPooler>
 {
@@ -95,6 +96,12 @@ public class HexagonPooler : Singleton<HexagonPooler>
             obj.SetActive(false);
             obj.GetComponentInChildren<SpriteRenderer>().color = color;
             obj.GetComponent<Hexagon>().color = color;
+            
+            if (!isHexagon)
+            {
+                obj.GetComponent<Bomb>().SetInitialCounter(UnityEngine.Random.Range(boardParameters.BombCounterMinValue,
+                    boardParameters.BombCounterMaxValue + 1));
+            }
             
             newHexagonPool.Enqueue(obj);
         }

@@ -5,10 +5,9 @@ using UnityEngine;
 
 public class HexagonalGroupChooser : MonoBehaviour
 {
-    public static event Action OnAnotherHexagonalGroupChosen;
-    
     [SerializeField] private TouchParametersScriptableObject touchParameters;
-  
+    [SerializeField] private HexagonalGroupRotator hexagonalGroupRotator;
+    
     private Hexagon[] chosenHexagons;
     private int[] firstTwoChosenHexagonIndexes;
     private bool beforeFirstValidTap = true;
@@ -24,17 +23,13 @@ public class HexagonalGroupChooser : MonoBehaviour
 
     public void OnPlayerTapProcessed(Collider2D[] collider2Ds, int overlapCircle, Vector3 rayOrigin)
     {
-        if (!FindTwoChosenHexagons(collider2Ds, overlapCircle, rayOrigin)) return;
+        if (hexagonalGroupRotator.HasRotatingHexagonGroup) {return;}
+        if (!FindTwoChosenHexagons(collider2Ds, overlapCircle, rayOrigin)) {return;}
+        if (!FindThirdHexagon(collider2Ds, rayOrigin)) {return;}
         
-        FindThirdHexagon(collider2Ds, rayOrigin);
         HandleThreeChosenHexagons();
 
-        if (!beforeFirstValidTap)
-        {
-            OnAnotherHexagonalGroupChosen?.Invoke();
-            return;
-        }
-        beforeFirstValidTap = false;
+        if (beforeFirstValidTap) {beforeFirstValidTap = false;}
     }
 
     public void ClearChosenHexagons()
@@ -45,7 +40,7 @@ public class HexagonalGroupChooser : MonoBehaviour
         Array.Clear(chosenHexagons, 0, chosenHexagons.Length);
     }
     
-    private void FindThirdHexagon(Collider2D[] collider2Ds, Vector3 rayOrigin)
+    private bool FindThirdHexagon(Collider2D[] collider2Ds, Vector3 rayOrigin)
     {
         var firstHexagonsNeighbors = new Collider2D[7];
         var secondHexagonNeighbors = new Collider2D[7];
@@ -56,18 +51,20 @@ public class HexagonalGroupChooser : MonoBehaviour
         
         var commonNeighbours = firstHexagonsNeighbors.Intersect(secondHexagonNeighbors).ToList();
         
-        if (commonNeighbours.Count == 0) { return;}
-        if (commonNeighbours[0] == null) { return;}
+        if (commonNeighbours.Count == 0) { return false;}
+        if (commonNeighbours[0] == null) { return false;}
         
         hasChosenHexagonGroup = true;
 
-        if (commonNeighbours.Count == 1) { chosenHexagons[2] = commonNeighbours[0].GetComponentInParent<Hexagon>(); return;}
-        if (commonNeighbours[1] == null) { chosenHexagons[2] = commonNeighbours[0].GetComponentInParent<Hexagon>(); return;}
+        if (commonNeighbours.Count == 1) { chosenHexagons[2] = commonNeighbours[0].GetComponentInParent<Hexagon>(); return true;}
+        if (commonNeighbours[1] == null) { chosenHexagons[2] = commonNeighbours[0].GetComponentInParent<Hexagon>(); return true;}
 
         chosenHexagons[2] = Vector3.SqrMagnitude(commonNeighbours[0].transform.position - rayOrigin) > 
                             Vector3.SqrMagnitude(commonNeighbours[1].transform.position - rayOrigin) 
             ? commonNeighbours[1].GetComponentInParent<Hexagon>()
             : commonNeighbours[0].GetComponentInParent<Hexagon>();
+
+        return true;
     }
 
     private bool FindTwoChosenHexagons(Collider2D[] collider2Ds, int overlapCircle, Vector3 rayOrigin)
@@ -139,7 +136,7 @@ public class HexagonalGroupChooser : MonoBehaviour
     {
         for (var i = 0; i < 3; i++)
         {
-            if (chosenHexagons[i] == null) {continue;}
+            if (chosenHexagons[i] == null || chosenHexagons[i].MyTransform == null) {continue;}
 
             chosenHexagons[i].MyTransform.localScale = BoardCreator.Instance.HexagonScale;
         }

@@ -12,6 +12,8 @@ public class BoardParametersScriptableObject : ScriptableObject
     [SerializeField] private Transform bombTransform;
 
     [SerializeField] private int bombSpawnCountPerColor = 5;
+    [SerializeField] private int bombCounterMaxValue = 8;
+    [SerializeField] private int bombCounterMinValue = 3;
     
     [SerializeField] private int rowCount;
     [SerializeField] private int columnCount;
@@ -40,6 +42,8 @@ public class BoardParametersScriptableObject : ScriptableObject
     public float BoardMarginVertical => boardMarginVertical;
     public float BoardMarginHorizontal => boardMarginHorizontal;
     public int BombSpawnCountPerColor => bombSpawnCountPerColor;
+    public int BombCounterMaxValue => bombCounterMaxValue;
+    public int BombCounterMinValue => bombCounterMinValue;
     public Transform BombTransform => bombTransform;
     public Transform HexagonTransform => hexagonTransform;
     public int RowCount => rowCount;

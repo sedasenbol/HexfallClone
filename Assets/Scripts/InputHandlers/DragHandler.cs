@@ -10,8 +10,6 @@ public enum DragOrientation
 
 public class DragHandler : MonoBehaviour
 {
-    public static event Action<DragOrientation> OnPlayerDragProcessed; 
-
     [SerializeField] private TouchParametersScriptableObject touchParameters;
     [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
     [SerializeField] private RotatingHexagonalGroupOrderer rotatingHexagonalGroupOrderer;

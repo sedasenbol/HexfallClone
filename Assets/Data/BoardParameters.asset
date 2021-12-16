@@ -17,6 +17,8 @@ MonoBehaviour:
   hexagonTransform: {fileID: 8439168811343048017, guid: f9a80b3b764474079925006def577301, type: 3}
   bombTransform: {fileID: 5778473696985764057, guid: b3de2069b22024fc9ab1e5b80e92ff94, type: 3}
   bombSpawnCountPerColor: 5
+  bombCounterMaxValue: 8
+  bombCounterMinValue: 3
   rowCount: 9
   columnCount: 8
   colorList:
@@ -27,9 +29,9 @@ MonoBehaviour:
   - {r: 1, g: 0.39354926, b: 0, a: 0.78431374}
   hexagonSpawnHeight: 8
   hexagonFallingHeight: -6
-  oldHexagonFallingDuration: 1
+  oldHexagonFallingDuration: 0.5
   clearedHexagonFallingDuration: 0.1
-  hexagonFallingAfterSpawnDuration: 1
-  initialHexagonGroupCheckDelay: 0.5
-  hexagonalGroupUnitRotateDuration: 1
+  hexagonFallingAfterSpawnDuration: 0.5
+  initialHexagonGroupCheckDelay: 0.2
+  hexagonalGroupUnitRotateDuration: 0.3
   hexagonalGroupRotateSpinCount: 3

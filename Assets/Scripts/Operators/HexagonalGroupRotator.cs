@@ -13,40 +13,29 @@ public class HexagonalGroupRotator : MonoBehaviour
     
     private int hexagonalGroupRotateCounter;
     private YieldInstruction waitForPreviousRotateFinish;
-    //private List<Hexagon>[] boardHexagons => BoardCreator.Instance.BoardHexagons;
+    private bool hasRotatingHexagonGroup;
 
     private void Awake()
     {
         waitForPreviousRotateFinish = new WaitForSeconds(boardParameters.HexagonalGroupUnitRotateDuration);
     }
 
-    private void OnEnable()
-    {
-        HexagonalGroupChooser.OnAnotherHexagonalGroupChosen += OnAnotherHexagonalGroupChosen;
-    }
-
-    private void OnAnotherHexagonalGroupChosen()
-    {
-        StopPreviouslyRotatingHexagonalGroup();
-    }
-
-    public void StopPreviouslyRotatingHexagonalGroup()
-    {
-        DOTween.CompleteAll();
-        StopAllCoroutines();
-    }
-    
     public void RotateAndCheckHexagonalGroupMultipleTimes(Hexagon[] chosenHexagons, Transform[] hexagonTransforms, int[] 
     orderedIndexes)
     {
         hexagonalGroupRotateCounter = 0;
+        hasRotatingHexagonGroup = true;
 
         RotateAndCheckHexagonalGroup(chosenHexagons, hexagonTransforms, orderedIndexes);
     }
 
     private void RotateAndCheckHexagonalGroup(Hexagon[] chosenHexagons, Transform[] hexagonTransforms, int[] orderedIndexes)
     {
-        if (hexagonalGroupRotateCounter == boardParameters.HexagonalGroupRotateSpinCount * 3) {return;}
+        if (hexagonalGroupRotateCounter == boardParameters.HexagonalGroupRotateSpinCount * 3)
+        {
+            hasRotatingHexagonGroup = false;
+            return;
+        }
         
         hexagonalGroupRotateCounter++;
         
@@ -60,7 +49,11 @@ public class HexagonalGroupRotator : MonoBehaviour
     {
         yield return waitForPreviousRotateFinish;
 
-        if (hexagonalGroupChecker.CheckHexagonalGroupAfterRotate(chosenHexagons)) { yield break; }
+        if (hexagonalGroupChecker.CheckHexagonalGroupAfterRotate(chosenHexagons))
+        {
+            hasRotatingHexagonGroup = false;
+            yield break;
+        }
 
         RotateAndCheckHexagonalGroup(chosenHexagons, hexagonTransforms, orderedIndexes);
     }
@@ -83,7 +76,7 @@ public class HexagonalGroupRotator : MonoBehaviour
             currentHexagon.IndexI = nextHexagon.IndexI;
             currentHexagon.IndexJ = nextHexagon.IndexJ;
             currentHexagon.CurrentTargetIndexJ = nextHexagon.IndexJ;
-
+            
             boardOperator.AddHexagonToBoardHexagonsList(currentHexagon, nextHexagon.IndexI,nextHexagon.IndexJ);
         }
 
@@ -95,9 +88,7 @@ public class HexagonalGroupRotator : MonoBehaviour
         
         boardOperator.AddHexagonToBoardHexagonsList(chosenHexagons[orderedIndexes[2]], firsHexagonIndexes[0],firsHexagonIndexes[1]);
     }
-    
-    private void OnDisable()
-    {
-        HexagonalGroupChooser.OnAnotherHexagonalGroupChosen -= OnAnotherHexagonalGroupChosen;
-    }
+
+    public bool HasRotatingHexagonGroup => hasRotatingHexagonGroup;
+
 }

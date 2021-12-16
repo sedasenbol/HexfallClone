@@ -11,12 +11,17 @@ public class TapHandler : MonoBehaviour
     
     private Collider2D[] collider2Ds;
     private int hexagonLayer;
+    private int bombLayer;
+    private int enabledLayers;
     private bool beforeFirstValidTap = true;
 
     private void OnEnable()
     {
         collider2Ds = new Collider2D[7];
         hexagonLayer = LayerMask.GetMask("Hexagon");
+        bombLayer = LayerMask.GetMask("Bomb");
+
+        enabledLayers = ~(1 << bombLayer | 1 << hexagonLayer);
         
         TouchController.OnPlayerTapEnded += OnPlayerTapEnded;
     }
@@ -33,7 +38,7 @@ public class TapHandler : MonoBehaviour
         var rayOrigin = eventData.pointerCurrentRaycast.worldPosition;
         
         var overlapCircle = Physics2D.OverlapCircleNonAlloc(rayOrigin, BoardCreator.Instance.HexagonXLength / 2f, 
-        collider2Ds, hexagonLayer);
+        collider2Ds, enabledLayers);
         
         if (overlapCircle < 3) {return;}
         

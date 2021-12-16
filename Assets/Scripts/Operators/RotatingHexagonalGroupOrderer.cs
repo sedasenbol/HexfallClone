@@ -6,20 +6,17 @@ public class RotatingHexagonalGroupOrderer : MonoBehaviour
 {
     [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
     [SerializeField] private HexagonalGroupRotator hexagonalGroupRotator;
-
-    private bool isFirstRotatingHexagonalGroup = true;
     
     public void OrderAndRotateHexagonalGroup(DragOrientation orientation)
     {
         if (!hexagonalGroupChooser.HasChosenHexagonGroup) {return;}
         
-        OrderChosenHexagons(orientation, out var hexagonTransforms, out var orderedIndexes);
+        if (!OrderChosenHexagons(orientation, out var hexagonTransforms, out var orderedIndexes)) {return;};
 
-        hexagonalGroupRotator.StopPreviouslyRotatingHexagonalGroup();
         hexagonalGroupRotator.RotateAndCheckHexagonalGroupMultipleTimes(hexagonalGroupChooser.ChosenHexagons, hexagonTransforms, orderedIndexes);
     }
 
-    private void OrderChosenHexagons(DragOrientation orientation, out Transform[] hexagonTransforms, out int[] orderedIndexes)
+    private bool OrderChosenHexagons(DragOrientation orientation, out Transform[] hexagonTransforms, out int[] orderedIndexes)
     {
         var currentHexagonAngles = new float[3];
         hexagonTransforms = new Transform[3];
@@ -28,6 +25,8 @@ public class RotatingHexagonalGroupOrderer : MonoBehaviour
         for (var i = 0; i < 3; i++)
         {
             hexagonTransforms[i] = hexagonalGroupChooser.ChosenHexagons[i].MyTransform;
+
+            if (hexagonTransforms[i] == null) { return false;}
 
             currentHexagonAngles[i] = Vector3.SignedAngle(hexagonalGroupChooser.ChosenPoint, hexagonTransforms[i].position, Vector3.forward);
         }
@@ -40,5 +39,7 @@ public class RotatingHexagonalGroupOrderer : MonoBehaviour
 
             currentHexagonAngles[currentMinIndex] = orientation == DragOrientation.Clockwise ? -Mathf.Infinity : Mathf.Infinity;
         }
+
+        return true;
     }
 }

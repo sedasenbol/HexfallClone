@@ -14,7 +14,7 @@ public class Hexagon : MonoBehaviour
 
     private Transform myTransform;
 
-    private void OnEnable()
+    protected virtual void OnEnable()
     {
         HexagonalGroupChecker.OnHexagonCleared += OnHexagonCleared;
     }
@@ -98,7 +98,7 @@ public class Hexagon : MonoBehaviour
         return HaveHexagonalGroup;
     }
     
-    private void OnDisable()
+    protected virtual void OnDisable()
     {
         myTransform = null;
 

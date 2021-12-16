@@ -157,7 +157,7 @@ Transform:
   - {fileID: 628537901}
   - {fileID: 526616781}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &526616780
 GameObject:
@@ -205,6 +205,7 @@ MonoBehaviour:
   levelStartParameters: {fileID: 11400000, guid: 6c365e2f6af014e2eb7e71b016bb6794, type: 2}
   hexagonalGroupChecker: {fileID: 5197067932081214451}
   inputHandler: {fileID: 6131494902348222317}
+  scoreManager: {fileID: 1152852647}
 --- !u!1 &628537900
 GameObject:
   m_ObjectHideFlags: 0
@@ -368,36 +369,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2068824144
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2068824145}
-  m_Layer: 0
-  m_Name: CurrentHexagonalGroup
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2068824145
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2068824144}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1327467123755804014 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3291199099559500869, guid: 1c6b8f4a574354c6cb052ef49d40ae81, type: 3}
@@ -555,7 +526,7 @@ PrefabInstance:
     - target: {fileID: 2606987070748294211, guid: 696c10ef409c04c3593aa5dc43543067, type: 3}
       propertyPath: currentHexagonalGroupTransform
       value: 
-      objectReference: {fileID: 2068824145}
+      objectReference: {fileID: 0}
     - target: {fileID: 3242579088492431950, guid: 696c10ef409c04c3593aa5dc43543067, type: 3}
       propertyPath: scoreManager
       value: 
@@ -612,6 +583,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   touchParameters: {fileID: 11400000, guid: 4bcfabff0d4bd4f3081e8e0f881589b1, type: 2}
+  hexagonalGroupRotator: {fileID: 5197067932081214453}
 --- !u!114 &5197067932081214451 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3242579088492431950, guid: 696c10ef409c04c3593aa5dc43543067, type: 3}

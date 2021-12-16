@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 1891573738825328405}
   - component: {fileID: 5706428734254448199}
   - component: {fileID: 4660962892759259051}
-  - component: {fileID: 8725516595599099616}
   m_Layer: 11
   m_Name: Hexagon
   m_TagString: Untagged
@@ -117,20 +116,6 @@ PolygonCollider2D:
       - {x: 0.384, y: -0.20400001}
       - {x: 0.384, y: 0.20400001}
       - {x: 0.024, y: 0.384}
---- !u!114 &8725516595599099616
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 270625242067147810}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f73120483e09c48c0a3ea8ee7a135aad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  boardParameters: {fileID: 0}
-  boardOperator: {fileID: 0}
 --- !u!1 &2253605936553638035
 GameObject:
   m_ObjectHideFlags: 0
@@ -293,7 +278,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -379,3 +364,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boardParameters: {fileID: 11400000, guid: c86c4e820f6d44eacbf28d18841059a3, type: 2}
   boardOperator: {fileID: 2606987070748294211, guid: 696c10ef409c04c3593aa5dc43543067, type: 3}
+  counterText: {fileID: 6401891284057567215}

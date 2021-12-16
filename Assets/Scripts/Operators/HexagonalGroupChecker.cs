@@ -9,6 +9,7 @@ using Random = UnityEngine.Random;
 public class HexagonalGroupChecker : MonoBehaviour
 {
     public static event Action<int, int> OnHexagonCleared;
+    public static event Action OnPlayerClearedHexagonalGroup;
     public static event Action OnAllInitialHexagonalGroupsCleared;
 
     [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
@@ -94,6 +95,7 @@ public class HexagonalGroupChecker : MonoBehaviour
 
         if (ClearHexagonalGroups(false))
         {
+            OnPlayerClearedHexagonalGroup?.Invoke();
             StartCoroutine(CheckHexagonalGroupsInAllBoardWithDelay());
             return true;
         }
@@ -124,27 +126,7 @@ public class HexagonalGroupChecker : MonoBehaviour
         hexagonIndexesToSetInactive.Add(new[] { i, j });
         boardHexagons[i][j].HaveHexagonalGroup = false;
     }
-
-    private void OrderHexagonIndexesToSetInactive()
-    {
-        var hexagonIndexesToSetInactiveCopy = new List<int[]>(hexagonIndexesToSetInactive);
-        
-        hexagonIndexesToSetInactive.Clear();
-
-        for (var i = 0; i < boardParameters.ColumnCount; i++)
-        {
-            for (var j = 0; j < boardParameters.RowCount; j++)
-            {
-                var currentIndex = new[] { i, j };
-
-                if (!hexagonIndexesToSetInactiveCopy.Any(index => index.SequenceEqual(currentIndex))) {continue;}
-
-                hexagonIndexesToSetInactiveCopy.RemoveAll(index => index.SequenceEqual(currentIndex));
-                hexagonIndexesToSetInactive.Add(currentIndex);
-            }
-        }
-    }
-
+    
     private bool ClearHexagonalGroups(bool initialHexagonCheck)
     {
         var clearedHexagonsInColumns = Enumerable.Repeat(0, boardParameters.ColumnCount).ToList();
@@ -166,12 +148,13 @@ public class HexagonalGroupChecker : MonoBehaviour
             StartCoroutine(RemoveHexagon(currentHexagon, indexes));
         }
 
+        if (!cleared) return false;
+        
         recentlySpawnedHexagons.Clear();
         AddNewHexagonsToClearedColumns(clearedHexagonsInColumns);
+        if (!initialHexagonCheck) { hexagonalGroupChooser.ClearChosenHexagons(); }
 
-        if (cleared && !initialHexagonCheck) { hexagonalGroupChooser.ClearChosenHexagons(); }
-        
-        return cleared;
+        return true;
     }
 
     private IEnumerator RemoveHexagon(Hexagon currentHexagon, int[] indexes)
@@ -224,8 +207,6 @@ public class HexagonalGroupChecker : MonoBehaviour
         hexagon.IndexJ = j;
         hexagon.Initialize(finalPosition.y);
         hexagonTransform.DOMoveY(finalPosition.y, boardParameters.HexagonFallingAfterSpawnDuration);
-        //hexagon.CurrentTargetHeight = finalPosition.y;
-
         hexagon.color = randomColor;
         boardOperator.AddHexagonToBoardHexagonsList(hexagon, i, j);
 
