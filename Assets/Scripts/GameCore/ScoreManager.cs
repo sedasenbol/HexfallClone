@@ -9,7 +9,7 @@ public class ScoreManager : MonoBehaviour
     
     private float score;
     private bool active;
-    private int bombCounter = 1;
+    private int previouslySpawnedBombCounter;
     
     private void OnEnable()
     {
@@ -31,9 +31,9 @@ public class ScoreManager : MonoBehaviour
 
     public bool ShouldSpawnBomb()
     {
-        if (score < bombCounter * scoreParameters.BombHexagonSpawnScore) {return false;}
+        if (score < (previouslySpawnedBombCounter + 1) * scoreParameters.BombHexagonSpawnScore) {return false;}
 
-        bombCounter++;
+        previouslySpawnedBombCounter++;
         
         return true;
     }

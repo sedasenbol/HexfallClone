@@ -145,6 +145,7 @@ public class HexagonalGroupChecker : MonoBehaviour
             clearedHexagonsInColumns[indexes[0]]++;
             currentHexagon.Active = false;
 
+            scoreManager.UpdateScore();
             StartCoroutine(RemoveHexagon(currentHexagon, indexes));
         }
 
@@ -163,7 +164,6 @@ public class HexagonalGroupChecker : MonoBehaviour
 
         currentHexagon.MyTransform.DOMoveY(boardParameters.HexagonFallingHeight, boardParameters.ClearedHexagonFallingDuration);
         
-        scoreManager.UpdateScore();
         HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.color);
         boardOperator.RemoveHexagonFromBoardHexagonsList(currentHexagon, indexes[0], indexes[1]);
         OnHexagonCleared?.Invoke(indexes[0], indexes[1]);

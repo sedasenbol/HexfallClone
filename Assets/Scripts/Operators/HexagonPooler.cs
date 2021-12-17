@@ -32,17 +32,7 @@ public class HexagonPooler : Singleton<HexagonPooler>
     {
         if (hexagonPoolDict[color].Count == 0) { Debug.LogError($"Pool size of {color} item is insufficient."); return null; }
 
-        GameObject objectSpawned;
-        
-        if (shouldSpawnBomb)
-        {
-            objectSpawned = bombPoolDict[color].Dequeue();
-            shouldSpawnBomb = false;
-        }
-        else
-        {
-            objectSpawned = hexagonPoolDict[color].Dequeue();    
-        }
+        var objectSpawned = shouldSpawnBomb ? bombPoolDict[color].Dequeue() : hexagonPoolDict[color].Dequeue();
         
         objectSpawned.SetActive(true);
         
