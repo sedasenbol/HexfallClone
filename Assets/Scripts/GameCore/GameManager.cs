@@ -21,6 +21,12 @@ public class GameManager : MonoBehaviour
         
         SceneManager.sceneLoaded += OnSceneLoaded;
         LevelManager.OnGameOver += OnGameOver;
+        LevelManager.OnNoPotentialValidMovePresent += OnNoPotentialValidMovePresent;
+    }
+
+    private void OnNoPotentialValidMovePresent()
+    {
+        RestartGame();
     }
 
     private void OnGameOver(float score)
@@ -84,5 +90,6 @@ public class GameManager : MonoBehaviour
         
         SceneManager.sceneLoaded -= OnSceneLoaded;
         LevelManager.OnGameOver -= OnGameOver;
+        LevelManager.OnNoPotentialValidMovePresent -= OnNoPotentialValidMovePresent;
     }
 }

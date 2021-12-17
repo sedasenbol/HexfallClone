@@ -204,6 +204,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelStartParameters: {fileID: 11400000, guid: 6c365e2f6af014e2eb7e71b016bb6794, type: 2}
   hexagonalGroupChecker: {fileID: 5197067932081214451}
+  potentialValidMoveChecker: {fileID: 5197067932081214455}
   inputHandler: {fileID: 6131494902348222317}
   scoreManager: {fileID: 1152852647}
 --- !u!1 &628537900
@@ -539,6 +540,10 @@ PrefabInstance:
       propertyPath: hexagonalGroupChooser
       value: 
       objectReference: {fileID: 5197067932081214450}
+    - target: {fileID: 3242579088492431950, guid: 696c10ef409c04c3593aa5dc43543067, type: 3}
+      propertyPath: potentialValidMoveChecker
+      value: 
+      objectReference: {fileID: 5197067932081214455}
     - target: {fileID: 5470864652960645520, guid: 696c10ef409c04c3593aa5dc43543067, type: 3}
       propertyPath: tapHandler
       value: 
@@ -621,6 +626,7 @@ MonoBehaviour:
   boardParameters: {fileID: 11400000, guid: c86c4e820f6d44eacbf28d18841059a3, type: 2}
   hexagonalGroupChecker: {fileID: 5197067932081214451}
   boardOperator: {fileID: 5197067932081214452}
+  potentialValidMoveChecker: {fileID: 5197067932081214455}
 --- !u!114 &5197067932081214454 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5470864652960645520, guid: 696c10ef409c04c3593aa5dc43543067, type: 3}
@@ -630,6 +636,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 41d82f3156e0c42e0a2ce62a25534cfe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5197067932081214455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5197067932081214449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc17f80d38f048ad8830acda11947b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &5623157564407957465 stripped

@@ -29,8 +29,8 @@ public class BoardParametersScriptableObject : ScriptableObject
     [SerializeField] private float hexagonalGroupUnitRotateDuration = 0.5f;
 
     [SerializeField] private int hexagonalGroupRotateSpinCount = 4;
-
-
+    
+    
     public int HexagonalGroupRotateSpinCount => hexagonalGroupRotateSpinCount;
     public float HexagonalGroupUnitRotateDuration => hexagonalGroupUnitRotateDuration;
     public float InitialHexagonGroupCheckDelay => initialHexagonGroupCheckDelay;

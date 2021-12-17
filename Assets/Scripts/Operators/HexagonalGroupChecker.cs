@@ -16,7 +16,8 @@ public class HexagonalGroupChecker : MonoBehaviour
     [SerializeField] private BoardParametersScriptableObject boardParameters;
     [SerializeField] private BoardOperator boardOperator;
     [SerializeField] private ScoreManager scoreManager;
-    
+    [SerializeField] private PotentialValidMoveChecker potentialValidMoveChecker;
+
     private YieldInstruction waitForNewHexagonsFall;
     private List<Hexagon>[] boardHexagons => BoardCreator.Instance.BoardHexagons;
     private List<int[]> hexagonIndexesToSetInactive;
@@ -35,6 +36,7 @@ public class HexagonalGroupChecker : MonoBehaviour
     {
         if (CheckHexagonalGroupsInAllBoard(true)) return;
 
+        
         OnAllInitialHexagonalGroupsCleared?.Invoke();
     }
 
@@ -60,6 +62,7 @@ public class HexagonalGroupChecker : MonoBehaviour
             return true;
         }
 
+        potentialValidMoveChecker.CheckIfThereIsAnyPotentialValidMoveLeft();
         return false;
     }
 
@@ -100,6 +103,7 @@ public class HexagonalGroupChecker : MonoBehaviour
             return true;
         }
 
+        potentialValidMoveChecker.CheckIfThereIsAnyPotentialValidMoveLeft();
         return false;
     }
 

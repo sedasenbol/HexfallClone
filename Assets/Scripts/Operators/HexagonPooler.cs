@@ -25,7 +25,7 @@ public class HexagonPooler : Singleton<HexagonPooler>
 
     private void SetPoolSizePerHexagonColor()
     {
-        poolSizePerHexagonColor = boardParameters.RowCount * boardParameters.ColumnCount;
+        poolSizePerHexagonColor = boardParameters.RowCount * boardParameters.ColumnCount + 1;
     }
 
     public Transform SpawnFromPool(Color color, Vector3 position, bool shouldSpawnBomb)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 
@@ -10,13 +11,17 @@ public class Hexagon : MonoBehaviour
     [SerializeField] private BoardOperator boardOperator;
     
     private List<int[]> hexagonalGroup;
-    private List<int[]> touchingIndexes;
+    private List<int[]> neighborHexagonIndexes;
+    private int[] colorCountArray;
 
     private Transform myTransform;
 
     protected virtual void OnEnable()
     {
         HexagonalGroupChecker.OnHexagonCleared += OnHexagonCleared;
+        
+        hexagonalGroup = new List<int[]>();
+        colorCountArray = new int[boardParameters.ColorList.Count];
     }
 
     private void OnHexagonCleared(int i, int j)
@@ -26,7 +31,6 @@ public class Hexagon : MonoBehaviour
         
         DOTween.Kill(myTransform);
         CurrentTargetIndexJ--;
-        //CurrentTargetHeight -= BoardCreator.Instance.HeightDifferenceBetweenHexagons;
         
         CurrentTargetHeight = BoardCreator.Instance.GetHexagonYPosition(i, CurrentTargetIndexJ);
 
@@ -51,14 +55,14 @@ public class Hexagon : MonoBehaviour
 
     private void SetTouchingHexagonIndexes()
     {
-        touchingIndexes = new List<int[]>();
+        neighborHexagonIndexes = new List<int[]>();
 
-        touchingIndexes.Add(new int[] { IndexI - 1, IndexJ + (IndexI + 1) % 2 }); // On top left
-        touchingIndexes.Add(new int[] { IndexI - 1, IndexJ - 1 + (IndexI + 1) % 2 }); // On bottom left
-        touchingIndexes.Add(new int[] { IndexI, IndexJ - 1 }); // On bottom
-        touchingIndexes.Add(new int[] { IndexI + 1, IndexJ - 1 + (IndexI + 1) % 2 }); // On bottom right
-        touchingIndexes.Add(new int[] { IndexI + 1, IndexJ + (IndexI + 1) % 2 }); // On top right   
-        touchingIndexes.Add(new int[] { IndexI, IndexJ + 1 }); // On top
+        neighborHexagonIndexes.Add(new int[] { IndexI - 1, IndexJ + (IndexI + 1) % 2 }); // On top left
+        neighborHexagonIndexes.Add(new int[] { IndexI - 1, IndexJ - 1 + (IndexI + 1) % 2 }); // On bottom left
+        neighborHexagonIndexes.Add(new int[] { IndexI, IndexJ - 1 }); // On bottom
+        neighborHexagonIndexes.Add(new int[] { IndexI + 1, IndexJ - 1 + (IndexI + 1) % 2 }); // On bottom right
+        neighborHexagonIndexes.Add(new int[] { IndexI + 1, IndexJ + (IndexI + 1) % 2 }); // On top right   
+        neighborHexagonIndexes.Add(new int[] { IndexI, IndexJ + 1 }); // On top
     }
 
     public bool CheckHexagonalGroup(bool initialCheck)
@@ -66,13 +70,13 @@ public class Hexagon : MonoBehaviour
         if (!initialCheck) {SetTouchingHexagonIndexes();}
         
         HaveHexagonalGroup = false;
-        hexagonalGroup = new List<int[]>();
-
+        hexagonalGroup.Clear();
+        
         var previousHexagonWasOfMyColor = false;
         
-        for (var i = 0; i < touchingIndexes.Count; i++)
+        for (var i = 0; i < neighborHexagonIndexes.Count; i++)
         {
-            if (color != boardOperator.GetHexagonColorOnIndex(touchingIndexes[i]))
+            if (color != boardOperator.GetHexagonColorOnIndex(neighborHexagonIndexes[i]))
             {
                 previousHexagonWasOfMyColor = false;
                 continue;
@@ -80,8 +84,8 @@ public class Hexagon : MonoBehaviour
 
             if (previousHexagonWasOfMyColor)
             {
-                hexagonalGroup.Add(touchingIndexes[i]);
-                hexagonalGroup.Add(touchingIndexes[i-1]);
+                hexagonalGroup.Add(neighborHexagonIndexes[i]);
+                hexagonalGroup.Add(neighborHexagonIndexes[i-1]);
                 HaveHexagonalGroup = true;
                 continue;
             }
@@ -89,13 +93,29 @@ public class Hexagon : MonoBehaviour
             previousHexagonWasOfMyColor = true;
         }
 
-        if (!previousHexagonWasOfMyColor || color != boardOperator.GetHexagonColorOnIndex(touchingIndexes[0])) { return HaveHexagonalGroup; }
+        if (!previousHexagonWasOfMyColor || color != boardOperator.GetHexagonColorOnIndex(neighborHexagonIndexes[0])) { return HaveHexagonalGroup; }
         
-        hexagonalGroup.Add(touchingIndexes[touchingIndexes.Count - 1]); 
-        hexagonalGroup.Add(touchingIndexes[0]);
+        hexagonalGroup.Add(neighborHexagonIndexes[neighborHexagonIndexes.Count - 1]); 
+        hexagonalGroup.Add(neighborHexagonIndexes[0]);
         HaveHexagonalGroup = true;
 
         return HaveHexagonalGroup;
+    }
+
+    public bool CheckPotentialHexagonalGroup()
+    {
+        Array.Clear(colorCountArray, 0, boardParameters.ColorList.Count);
+        
+        for (var i = 0; i < neighborHexagonIndexes.Count; i++)
+        {
+            var neighborHexagonColor = boardOperator.GetHexagonColorOnIndex(neighborHexagonIndexes[i]);
+
+            if (neighborHexagonColor == Color.clear) {continue;}
+            
+            colorCountArray[boardParameters.ColorList.IndexOf(neighborHexagonColor)]++;
+        }
+
+        return colorCountArray.Max() >= 3;
     }
     
     protected virtual void OnDisable()
