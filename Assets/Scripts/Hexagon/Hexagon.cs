@@ -12,6 +12,7 @@ public class Hexagon : MonoBehaviour
     
     private List<int[]> hexagonalGroup;
     private List<int[]> neighborHexagonIndexes;
+    private List<int>[] colorAndNeighborIndexArray;
     private int[] colorCountArray;
 
     private Transform myTransform;
@@ -22,6 +23,18 @@ public class Hexagon : MonoBehaviour
         
         hexagonalGroup = new List<int[]>();
         colorCountArray = new int[boardParameters.ColorList.Count];
+        
+        InitializeColorAndNeighborIndexArray();
+    }
+
+    private void InitializeColorAndNeighborIndexArray()
+    {
+        colorAndNeighborIndexArray = new List<int>[boardParameters.ColorList.Count];
+
+        for (var i = 0; i < colorAndNeighborIndexArray.Length; i++)
+        {
+            colorAndNeighborIndexArray[i] = new List<int>();
+        }
     }
 
     private void OnHexagonCleared(int i, int j)
@@ -40,8 +53,6 @@ public class Hexagon : MonoBehaviour
             IndexJ = CurrentTargetIndexJ;
             boardOperator.AddHexagonToBoardHexagonsList(this, IndexI, IndexJ);
         });
-        
-
     }
 
     public void Initialize(float currentTargetHeight)
@@ -105,19 +116,48 @@ public class Hexagon : MonoBehaviour
     public bool CheckPotentialHexagonalGroup()
     {
         Array.Clear(colorCountArray, 0, boardParameters.ColorList.Count);
+        ClearColorAndNeighborIndexArrayLists();
         
         for (var i = 0; i < neighborHexagonIndexes.Count; i++)
         {
             var neighborHexagonColor = boardOperator.GetHexagonColorOnIndex(neighborHexagonIndexes[i]);
 
             if (neighborHexagonColor == Color.clear) {continue;}
-            
-            colorCountArray[boardParameters.ColorList.IndexOf(neighborHexagonColor)]++;
+
+            var colorIndex = boardParameters.ColorList.IndexOf(neighborHexagonColor);
+
+            colorCountArray[colorIndex]++;
+            colorAndNeighborIndexArray[colorIndex].Add(i);
         }
 
-        return colorCountArray.Max() >= 3;
+        var colorCountArrayMax = colorCountArray.Max();
+        
+        if (colorCountArrayMax < 3) { return false; }
+
+        var maxIndex = Array.IndexOf(colorCountArray, colorCountArrayMax);
+        
+        // Edge case: If three neighbor hexagon of the same color is of equal distance to each other (form an equilateral triangle),
+        // one can not create a hexagonal group using them. 
+        return !CheckEdgeCase(maxIndex);
     }
-    
+
+    private void ClearColorAndNeighborIndexArrayLists()
+    {
+        for (var i = 0; i < colorAndNeighborIndexArray.Length; i++)
+        {
+            colorAndNeighborIndexArray[i].Clear();
+        }
+    }
+
+    private bool CheckEdgeCase(int maxIndex)
+    {
+        var startingNeighbourIndex = colorAndNeighborIndexArray[maxIndex][0];
+
+        return colorAndNeighborIndexArray[maxIndex].Contains((startingNeighbourIndex + 2) % 6) &&
+               colorAndNeighborIndexArray[maxIndex].Contains((startingNeighbourIndex + 4) % 6) &&
+               colorAndNeighborIndexArray[maxIndex].Count == 3;
+    }
+
     protected virtual void OnDisable()
     {
         myTransform = null;
