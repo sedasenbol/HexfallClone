@@ -48,8 +48,8 @@ public class DragHandler : MonoBehaviour
         
         if (Mathf.Abs(dragAngle) > touchParameters.DragAngleThreshold)
         {
-            rotatingHexagonalGroupOrderer.OrderAndRotateHexagonalGroup(dragAngle > 0f ? DragOrientation.Clockwise 
-                : DragOrientation.CounterClockwise);
+            var orientation = dragAngle > 0f ? DragOrientation.Clockwise : DragOrientation.CounterClockwise;
+            rotatingHexagonalGroupOrderer.OrderAndRotateHexagonalGroup(orientation);
             shouldProcessDrag = false;
             return;
         }

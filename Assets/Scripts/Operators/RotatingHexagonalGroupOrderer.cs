@@ -28,16 +28,18 @@ public class RotatingHexagonalGroupOrderer : MonoBehaviour
 
             if (hexagonTransforms[i] == null) { return false;}
 
-            currentHexagonAngles[i] = Vector3.SignedAngle(hexagonalGroupChooser.ChosenPoint, hexagonTransforms[i].position, Vector3.forward);
+            currentHexagonAngles[i] = Vector3.SignedAngle(hexagonTransforms[i].position - hexagonalGroupChooser.ChosenPoint, 
+            Vector3.right, Vector3.forward);
         }
 
         for (var i = 0; i < 3; i++)
         {
-            var currentMinIndex = Array.IndexOf(currentHexagonAngles,
-                orientation == DragOrientation.Clockwise ? currentHexagonAngles.Max() : currentHexagonAngles.Min());
-            orderedIndexes[i] = currentMinIndex;
+            var currentIndex = Array.IndexOf(currentHexagonAngles,
+                orientation == DragOrientation.Clockwise ? currentHexagonAngles.Min() : currentHexagonAngles.Max());
+            orderedIndexes[i] = currentIndex;
 
-            currentHexagonAngles[currentMinIndex] = orientation == DragOrientation.Clockwise ? -Mathf.Infinity : Mathf.Infinity;
+            currentHexagonAngles[currentIndex] = orientation == DragOrientation.Clockwise ? Mathf.Infinity : -Mathf
+            .Infinity;
         }
 
         return true;
