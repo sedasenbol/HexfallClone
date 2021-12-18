@@ -1,11 +1,14 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "TouchParameters", menuName = "ScriptableObjects/TouchParameters", order = 1)]
-public class TouchParametersScriptableObject : ScriptableObject
+namespace SO
 {
-    [SerializeField] private float chosenHexagonsScalePercentage = 0.65f;
-    [SerializeField] private float dragAngleThreshold;
+    [CreateAssetMenu(fileName = "TouchParameters", menuName = "ScriptableObjects/TouchParameters", order = 1)]
+    public class TouchParametersScriptableObject : ScriptableObject
+    {
+        [SerializeField] private float chosenHexagonsScalePercentage = 0.65f;
+        [SerializeField] private float dragAngleThreshold;
     
-    public float DragAngleThreshold => dragAngleThreshold;
-    public float ChosenHexagonsScalePercentage => chosenHexagonsScalePercentage;
+        public float DragAngleThreshold => dragAngleThreshold;
+        public float ChosenHexagonsScalePercentage => chosenHexagonsScalePercentage;
+    }
 }

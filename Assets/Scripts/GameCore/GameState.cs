@@ -1,20 +1,23 @@
 
-public class GameState
+namespace GameCore
 {
-    public State CurrentState { get; set; } = State.Start;
-    public Scene CurrentScene { get; set; } = Scene.MainMenu;
-
-    public enum State
+    public class GameState
     {
-        Start,
-        Play,
-        Paused,
-        Over
-    }
+        public State CurrentState { get; set; } = State.Start;
+        public Scene CurrentScene { get; set; } = Scene.MainMenu;
 
-    public enum Scene
-    {
-        MainMenu = 0,
-        Game = 1,
+        public enum State
+        {
+            Start,
+            Play,
+            Paused,
+            Over
+        }
+
+        public enum Scene
+        {
+            MainMenu = 0,
+            Game = 1,
+        }
     }
 }

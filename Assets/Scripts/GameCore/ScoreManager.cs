@@ -1,44 +1,51 @@
+using Operators;
+using SO;
+using UI;
 using UnityEngine;
 
-public class ScoreManager : MonoBehaviour
+namespace GameCore
 {
-    [SerializeField] private ScoreParametersScriptableObject scoreParameters;
-    
-    private float score;
-    private bool active;
-    private int previouslySpawnedBombCounter;
-    
-    private void OnEnable()
+    public class ScoreManager : MonoBehaviour
     {
-        HexagonalGroupFinder.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
-    }
-
-    private void OnAllInitialHexagonalGroupsCleared()
-    {
-        active = true;
-    }
+        [SerializeField] private ScoreParametersScriptableObject scoreParameters;
     
-    public void UpdateScore()
-    {
-        if (!active) {return;}
+        private float score;
+        private bool active;
+        private int previouslySpawnedBombCounter;
+    
+        public void UpdateScore()
+        {
+            if (!active) {return;}
         
-        score += scoreParameters.ScorePerClearedHexagon;
-        UIManager.Instance.UpdateScore(score);
-    }
+            score += scoreParameters.ScorePerClearedHexagon;
+            UIManager.Instance.UpdateScore(score);
+        }
 
-    public bool ShouldSpawnBomb()
-    {
-        if (score < (previouslySpawnedBombCounter + 1) * scoreParameters.BombHexagonSpawnScore) {return false;}
+        public bool ShouldSpawnBomb()
+        {
+            if (score < (previouslySpawnedBombCounter + 1) * scoreParameters.BombHexagonSpawnScore) {return false;}
 
-        previouslySpawnedBombCounter++;
+            previouslySpawnedBombCounter++;
         
-        return true;
-    }
-    
-    private void OnDisable()
-    {
-        HexagonalGroupFinder.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
-    }
+            return true;
+        }
 
-    public float Score => score;
+        private void OnEnable()
+        {
+            HexagonalGroupFinder.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
+        }
+
+        private void OnAllInitialHexagonalGroupsCleared()
+        {
+            active = true;
+        }
+    
+ 
+        private void OnDisable()
+        {
+            HexagonalGroupFinder.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
+        }
+
+        public float Score => score;
+    }
 }

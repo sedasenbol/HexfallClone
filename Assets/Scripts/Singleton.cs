@@ -13,8 +13,8 @@ public class Singleton<T> : MonoBehaviour where T : Component
 
             if (_instance != null) return _instance;
             
-            GameObject newGO = new GameObject();
-            _instance = newGO.AddComponent<T>();
+            GameObject newGo = new GameObject();
+            _instance = newGo.AddComponent<T>();
             return _instance;
         }
     }

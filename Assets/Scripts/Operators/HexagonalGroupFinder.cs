@@ -3,228 +3,232 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using GameCore;
+using HexagonalPiece;
+using SO;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class HexagonalGroupFinder : Singleton<HexagonalGroupFinder>
+namespace Operators
 {
-    public static event Action<int, int> OnHexagonCleared;
-    public static event Action OnPlayerClearedHexagonalGroup;
-    public static event Action OnAllInitialHexagonalGroupsCleared;
-
-    [SerializeField] private BoardParametersScriptableObject boardParameters;
-    
-    [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
-    [SerializeField] private BoardOperator boardOperator;
-    [SerializeField] private ScoreManager scoreManager;
-    [SerializeField] private PotentialValidMoveChecker potentialValidMoveChecker;
-    
-    private List<Hexagon>[] boardHexagons => BoardCreator.Instance.BoardHexagons;
-    private List<int[]> hexagonIndexesToSetInactive;
-    private List<Hexagon> recentlySpawnedHexagons;
-
-    private YieldInstruction waitForNewHexagonsFall;
-
-    private bool operatingOnBoard;
-    
-    private void OnEnable()
+    public class HexagonalGroupFinder : Singleton<HexagonalGroupFinder>
     {
-        waitForNewHexagonsFall = new WaitForSeconds(boardParameters.ClearedHexagonFallingDuration + boardParameters
-        .HexagonFallingAfterSpawnDuration + boardParameters.InitialHexagonGroupCheckDelay);
-        
-        hexagonIndexesToSetInactive = new List<int[]>();
-        recentlySpawnedHexagons = new List<Hexagon>();
-    }
+        public static event Action<int, int> OnHexagonCleared;
+        public static event Action OnPlayerClearedHexagonalGroup;
+        public static event Action OnAllInitialHexagonalGroupsCleared;
 
-    public void CheckInitialHexagonGroups()
-    {
-        if (CheckHexagonalGroupsInAllBoard(true)) return;
+        [SerializeField] private BoardParametersScriptableObject boardParameters;
+    
+        [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
+        [SerializeField] private BoardOperator boardOperator;
+        [SerializeField] private ScoreManager scoreManager;
+        [SerializeField] private PotentialValidMoveChecker potentialValidMoveChecker;
+    
+        private List<Hexagon>[] boardHexagons => BoardCreator.Instance.BoardHexagons;
+        private List<int[]> hexagonIndexesToSetInactive;
+        private List<Hexagon> recentlySpawnedHexagons;
 
-        
-        OnAllInitialHexagonalGroupsCleared?.Invoke();
-    }
+        private YieldInstruction waitForNewHexagonsFall;
 
-    private bool CheckHexagonalGroupsInAllBoard(bool initialCheck)
-    {
-        hexagonIndexesToSetInactive.Clear();
+        private bool operatingOnBoard;
 
-        for (var i = 0; i < boardHexagons.Length; i++)
+        public void CheckInitialHexagonGroups()
         {
-            for (var j = 0; j < boardHexagons[i].Count; j++)
+            if (CheckHexagonalGroupsInAllBoard(true)) return;
+        
+            OnAllInitialHexagonalGroupsCleared?.Invoke();
+        }
+        public bool CheckHexagonalGroupAfterRotate(Hexagon[] rotatingHexagons)
+        {
+            operatingOnBoard = true;
+        
+            SetOldHexagonsHasBeenJustSpawnedToFalse();
+
+            hexagonIndexesToSetInactive.Clear();
+
+            var hexagonsChecked = new List<Hexagon>();
+            hexagonsChecked.AddRange(rotatingHexagons);
+        
+            for (var i = 0; i < 3; i++)
             {
-                boardHexagons[i][j].Initialize(BoardCreator.Instance.GetHexagonYPosition(i, j));
-                boardHexagons[i][j].HasBeenJustSpawned = false;
-                CheckHexagonalGroupAroundIndex(i, j, true);
+                CheckHexagonalGroupAroundIndex(rotatingHexagons[i].IndexI, rotatingHexagons[i].IndexJ, false);
+            }
+
+            for (var i = 0; i < hexagonIndexesToSetInactive.Count; i++)
+            {
+                var hexagonToSetInactive = boardHexagons[hexagonIndexesToSetInactive[i][0]][hexagonIndexesToSetInactive[i][1]];
+            
+                if (hexagonsChecked.Contains(hexagonToSetInactive)) {break;}
+            
+                CheckHexagonalGroupAroundIndex(hexagonIndexesToSetInactive[i][0], hexagonIndexesToSetInactive[i][1], false);
+            }
+        
+            RemoveDuplicatesFromHexagonIndexesToSetInactiveList();
+
+            if (ClearHexagonalGroups(false))
+            {
+                OnPlayerClearedHexagonalGroup?.Invoke();
+                StartCoroutine(CheckHexagonalGroupsInAllBoardWithDelay());
+                return true;
+            }
+
+            operatingOnBoard = false;
+            potentialValidMoveChecker.CheckIfThereIsAnyPotentialValidMoveLeft();
+            return false;
+        }
+
+        private IEnumerator CheckHexagonalGroupsInAllBoardWithDelay()
+        {
+            yield return waitForNewHexagonsFall;
+
+            CheckHexagonalGroupsInAllBoard(false);
+        }
+
+        private bool CheckHexagonalGroupsInAllBoard(bool initialCheck)
+        {
+            hexagonIndexesToSetInactive.Clear();
+
+            for (var i = 0; i < boardHexagons.Length; i++)
+            {
+                for (var j = 0; j < boardHexagons[i].Count; j++)
+                {
+                    boardHexagons[i][j].Initialize(BoardCreator.Instance.GetHexagonYPosition(i, j));
+                    boardHexagons[i][j].HasBeenJustSpawned = false;
+                    CheckHexagonalGroupAroundIndex(i, j, true);
+                }
+            }
+
+            RemoveDuplicatesFromHexagonIndexesToSetInactiveList();
+
+            while (ClearHexagonalGroups(true))
+            {
+                StartCoroutine(initialCheck ? CheckInitialHexagonGroupsWithDelay() : CheckHexagonalGroupsInAllBoardWithDelay());
+                return true;
+            }
+
+            operatingOnBoard = false;
+            potentialValidMoveChecker.CheckIfThereIsAnyPotentialValidMoveLeft();
+            return false;
+        }
+
+        private IEnumerator CheckInitialHexagonGroupsWithDelay()
+        {
+            yield return waitForNewHexagonsFall;
+
+            CheckInitialHexagonGroups();
+        }
+
+        private void RemoveDuplicatesFromHexagonIndexesToSetInactiveList()
+        {
+            hexagonIndexesToSetInactive = hexagonIndexesToSetInactive.Distinct().ToList();
+        }
+    
+        private void SetOldHexagonsHasBeenJustSpawnedToFalse()
+        {
+            for (var i = 0; i < recentlySpawnedHexagons.Count; i++)
+            {
+                recentlySpawnedHexagons[i].HasBeenJustSpawned = false;
             }
         }
 
-        RemoveDuplicatesFromHexagonIndexesToSetInactiveList();
-
-        while (ClearHexagonalGroups(true))
+        private void CheckHexagonalGroupAroundIndex(int i, int j, bool initialCheck)
         {
-            StartCoroutine(initialCheck ? CheckInitialHexagonGroupsWithDelay() : CheckHexagonalGroupsInAllBoardWithDelay());
-            return true;
+            if (!boardHexagons[i][j].CheckHexagonalGroup(initialCheck)) { return; }
+
+            hexagonIndexesToSetInactive.AddRange(boardHexagons[i][j].HexagonalGroup);
+            hexagonIndexesToSetInactive.Add(new[] { i, j });
+            boardHexagons[i][j].HaveHexagonalGroup = false;
         }
-
-        operatingOnBoard = false;
-        potentialValidMoveChecker.CheckIfThereIsAnyPotentialValidMoveLeft();
-        return false;
-    }
-
-    private void RemoveDuplicatesFromHexagonIndexesToSetInactiveList()
-    {
-        hexagonIndexesToSetInactive = hexagonIndexesToSetInactive.Distinct().ToList();
-    }
-
-    public bool CheckHexagonalGroupAfterRotate(Hexagon[] rotatingHexagons)
-    {
-        operatingOnBoard = true;
-        
-        SetOldHexagonsHasBeenJustSpawnedToFalse();
-
-        hexagonIndexesToSetInactive.Clear();
-
-        var hexagonsChecked = new List<Hexagon>();
-        hexagonsChecked.AddRange(rotatingHexagons);
-        
-        for (var i = 0; i < 3; i++)
-        {
-            CheckHexagonalGroupAroundIndex(rotatingHexagons[i].IndexI, rotatingHexagons[i].IndexJ, false);
-        }
-
-        for (var i = 0; i < hexagonIndexesToSetInactive.Count; i++)
-        {
-            var hexagonToSetInactive = boardHexagons[hexagonIndexesToSetInactive[i][0]][hexagonIndexesToSetInactive[i][1]];
-            
-            if (hexagonsChecked.Contains(hexagonToSetInactive)) {break;}
-            
-            CheckHexagonalGroupAroundIndex(hexagonIndexesToSetInactive[i][0], hexagonIndexesToSetInactive[i][1], false);
-        }
-        
-        RemoveDuplicatesFromHexagonIndexesToSetInactiveList();
-
-        if (ClearHexagonalGroups(false))
-        {
-            OnPlayerClearedHexagonalGroup?.Invoke();
-            StartCoroutine(CheckHexagonalGroupsInAllBoardWithDelay());
-            return true;
-        }
-
-        operatingOnBoard = false;
-        potentialValidMoveChecker.CheckIfThereIsAnyPotentialValidMoveLeft();
-        return false;
-    }
-
-    private IEnumerator CheckHexagonalGroupsInAllBoardWithDelay()
-    {
-        yield return waitForNewHexagonsFall;
-
-        CheckHexagonalGroupsInAllBoard(false);
-    }
-
-    private void SetOldHexagonsHasBeenJustSpawnedToFalse()
-    {
-        for (var i = 0; i < recentlySpawnedHexagons.Count; i++)
-        {
-            recentlySpawnedHexagons[i].HasBeenJustSpawned = false;
-        }
-    }
-
-    private void CheckHexagonalGroupAroundIndex(int i, int j, bool initialCheck)
-    {
-        if (!boardHexagons[i][j].CheckHexagonalGroup(initialCheck)) { return; }
-
-        hexagonIndexesToSetInactive.AddRange(boardHexagons[i][j].HexagonalGroup);
-        hexagonIndexesToSetInactive.Add(new[] { i, j });
-        boardHexagons[i][j].HaveHexagonalGroup = false;
-    }
     
-    private bool ClearHexagonalGroups(bool initialHexagonCheck)
-    {
-        var clearedHexagonsInColumns = Enumerable.Repeat(0, boardParameters.ColumnCount).ToList();
-
-        var cleared = false;
-
-        for (var i = 0; i < hexagonIndexesToSetInactive.Count; i++)
+        private bool ClearHexagonalGroups(bool initialHexagonCheck)
         {
-            var indexes = hexagonIndexesToSetInactive[i];
+            var clearedHexagonsInColumns = Enumerable.Repeat(0, boardParameters.ColumnCount).ToList();
 
-            var currentHexagon = boardHexagons[indexes[0]][indexes[1]];
-            
-            if (!currentHexagon.Active) {continue;}
+            var cleared = false;
 
-            cleared = true;
-            clearedHexagonsInColumns[indexes[0]]++;
-            currentHexagon.Active = false;
-
-            scoreManager.UpdateScore();
-            StartCoroutine(RemoveHexagon(currentHexagon, indexes));
-        }
-
-        if (!cleared) return false;
-        
-        recentlySpawnedHexagons.Clear();
-        AddNewHexagonsToClearedColumns(clearedHexagonsInColumns);
-        if (!initialHexagonCheck) { hexagonalGroupChooser.ClearChosenHexagons(); }
-
-        return true;
-    }
-
-    private IEnumerator RemoveHexagon(Hexagon currentHexagon, int[] indexes)
-    {
-        yield return null;
-
-        currentHexagon.MyTransform.DOMoveY(boardParameters.HexagonFallingHeight, boardParameters.ClearedHexagonFallingDuration);
-        
-        HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.MyColor);
-        boardOperator.RemoveHexagonFromBoardHexagonsList(currentHexagon, indexes[0], indexes[1]);
-        OnHexagonCleared?.Invoke(indexes[0], indexes[1]);
-    }
-    
-    private void AddNewHexagonsToClearedColumns(List<int> clearedHexagonsInColumns)
-    {
-        for (var i = 0; i < boardParameters.ColumnCount; i++)
-        {
-            for (var j = 0; j < clearedHexagonsInColumns[i]; j++)
+            for (var i = 0; i < hexagonIndexesToSetInactive.Count; i++)
             {
-                recentlySpawnedHexagons.Add(AddNewHexagon(i,boardParameters.RowCount - j - 1));
+                var indexes = hexagonIndexesToSetInactive[i];
+
+                var currentHexagon = boardHexagons[indexes[0]][indexes[1]];
+            
+                if (!currentHexagon.Active) {continue;}
+
+                cleared = true;
+                clearedHexagonsInColumns[indexes[0]]++;
+                currentHexagon.Active = false;
+
+                scoreManager.UpdateScore();
+                StartCoroutine(RemoveHexagon(currentHexagon, indexes));
+            }
+
+            if (!cleared) return false;
+        
+            recentlySpawnedHexagons.Clear();
+            AddNewHexagonsToClearedColumns(clearedHexagonsInColumns);
+            if (!initialHexagonCheck) { hexagonalGroupChooser.ClearChosenHexagons(); }
+
+            return true;
+        }
+
+        private IEnumerator RemoveHexagon(Hexagon currentHexagon, int[] indexes)
+        {
+            yield return null;
+
+            currentHexagon.MyTransform.DOMoveY(boardParameters.HexagonFallingHeight, boardParameters.ClearedHexagonFallingDuration);
+        
+            HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.MyColor);
+            boardOperator.RemoveHexagonFromBoardHexagonsList(currentHexagon, indexes[0], indexes[1]);
+            OnHexagonCleared?.Invoke(indexes[0], indexes[1]);
+        }
+    
+        private void AddNewHexagonsToClearedColumns(List<int> clearedHexagonsInColumns)
+        {
+            for (var i = 0; i < boardParameters.ColumnCount; i++)
+            {
+                for (var j = 0; j < clearedHexagonsInColumns[i]; j++)
+                {
+                    recentlySpawnedHexagons.Add(AddNewHexagon(i,boardParameters.RowCount - j - 1));
+                }
             }
         }
-    }
-
-    private IEnumerator CheckInitialHexagonGroupsWithDelay()
-    {
-        yield return waitForNewHexagonsFall;
-
-        CheckInitialHexagonGroups();
-    }
-
-    private Hexagon AddNewHexagon(int i, int j)
-    {
-        var randomColor = boardParameters.ColorList[Random.Range(0, boardParameters.ColorList.Count)];
-        var finalPosition = BoardCreator.Instance.GetHexagonPosition(i, j);
-
-        var spawnPosition = new Vector3()
+    
+        private Hexagon AddNewHexagon(int i, int j)
         {
-            x = finalPosition.x,
-            y = boardParameters.HexagonSpawnHeight,
-            z = 0f
-        };
+            var randomColor = boardParameters.ColorList[Random.Range(0, boardParameters.ColorList.Count)];
+            var finalPosition = BoardCreator.Instance.GetHexagonPosition(i, j);
 
-        var hexagonTransform = HexagonPooler.Instance.SpawnFromPool(randomColor, spawnPosition, scoreManager.ShouldSpawnBomb());
-        hexagonTransform.localScale = BoardCreator.Instance.HexagonScale;
-        var hexagon = hexagonTransform.GetComponent<Hexagon>();
-        hexagon.HasBeenJustSpawned = true;
-        hexagon.IndexI = i;
-        hexagon.IndexJ = j;
-        hexagon.Initialize(finalPosition.y);
-        hexagonTransform.DOMoveY(finalPosition.y, boardParameters.HexagonFallingAfterSpawnDuration);
-        hexagon.MyColor = randomColor;
-        boardOperator.AddHexagonToBoardHexagonsList(hexagon, i, j);
+            var spawnPosition = new Vector3()
+            {
+                x = finalPosition.x,
+                y = boardParameters.HexagonSpawnHeight,
+                z = 0f
+            };
 
-        return hexagon;
+            var hexagonTransform = HexagonPooler.Instance.SpawnFromPool(randomColor, spawnPosition, scoreManager.ShouldSpawnBomb());
+            hexagonTransform.localScale = BoardCreator.Instance.HexagonScale;
+            var hexagon = hexagonTransform.GetComponent<Hexagon>();
+            hexagon.HasBeenJustSpawned = true;
+            hexagon.IndexI = i;
+            hexagon.IndexJ = j;
+            hexagon.Initialize(finalPosition.y);
+            hexagonTransform.DOMoveY(finalPosition.y, boardParameters.HexagonFallingAfterSpawnDuration);
+            hexagon.MyColor = randomColor;
+            boardOperator.AddHexagonToBoardHexagonsList(hexagon, i, j);
+
+            return hexagon;
+        }
+
+        private void OnEnable()
+        {
+            waitForNewHexagonsFall = new WaitForSeconds(boardParameters.ClearedHexagonFallingDuration + boardParameters
+                .HexagonFallingAfterSpawnDuration + boardParameters.InitialHexagonGroupCheckDelay);
+        
+            hexagonIndexesToSetInactive = new List<int[]>();
+            recentlySpawnedHexagons = new List<Hexagon>();
+        }
+
+        public bool OperatingOnBoard => operatingOnBoard;
+
     }
-
-    public bool OperatingOnBoard => operatingOnBoard;
-
 }
