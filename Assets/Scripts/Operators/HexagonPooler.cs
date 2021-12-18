@@ -85,7 +85,7 @@ public class HexagonPooler : Singleton<HexagonPooler>
             var obj = Instantiate(hexagonalPieceTransform, hexagonalPieceContainerTransform).gameObject;
             obj.SetActive(false);
             obj.GetComponentInChildren<SpriteRenderer>().color = color;
-            obj.GetComponent<Hexagon>().color = color;
+            obj.GetComponent<Hexagon>().MyColor = color;
             
             if (!isHexagon)
             {

@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -22,7 +20,7 @@ public class Bomb : Hexagon
     {
         base.OnEnable();
 
-        HexagonalGroupChecker.OnPlayerClearedHexagonalGroup += OnPlayerClearedHexagonalGroup;
+        HexagonalGroupFinder.OnPlayerClearedHexagonalGroup += OnPlayerClearedHexagonalGroup;
     }
 
     private void OnPlayerClearedHexagonalGroup() 
@@ -46,7 +44,7 @@ public class Bomb : Hexagon
     {
         base.OnDisable();
 
-        HexagonalGroupChecker.OnPlayerClearedHexagonalGroup -= OnPlayerClearedHexagonalGroup;
+        HexagonalGroupFinder.OnPlayerClearedHexagonalGroup -= OnPlayerClearedHexagonalGroup;
     }
 
     

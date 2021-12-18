@@ -1,9 +1,7 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class UIManager : Singleton<UIManager>
 {
@@ -34,7 +32,7 @@ public class UIManager : Singleton<UIManager>
     
     private void OnEnable()
     {
-        HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
+        HexagonalGroupFinder.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
 
         startCombiningHexagonsTextDelay = new WaitForSeconds(levelStartParameters.StartCombiningHexagonsTextDelay);
         
@@ -121,7 +119,7 @@ public class UIManager : Singleton<UIManager>
 
     private void OnDisable()
     {
-        HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
+        HexagonalGroupFinder.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
     }
 
     public void LoadGameOverScreen(float score)

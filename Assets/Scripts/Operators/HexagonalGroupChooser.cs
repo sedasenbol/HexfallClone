@@ -23,6 +23,7 @@ public class HexagonalGroupChooser : MonoBehaviour
 
     public void OnPlayerTapProcessed(Collider2D[] collider2Ds, int overlapCircle, Vector3 rayOrigin)
     {
+        if (HexagonalGroupFinder.Instance.OperatingOnBoard) {return;}
         if (hexagonalGroupRotator.HasRotatingHexagonGroup) {return;}
         if (!FindTwoChosenHexagons(collider2Ds, overlapCircle, rayOrigin)) {return;}
         if (!FindThirdHexagon(collider2Ds, rayOrigin)) {return;}

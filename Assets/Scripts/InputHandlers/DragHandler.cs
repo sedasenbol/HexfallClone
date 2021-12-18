@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -46,15 +45,16 @@ public class DragHandler : MonoBehaviour
         
         var dragAngle = Vector3.SignedAngle(currentDragVector, previousDragVector, Vector3.forward);
         
-        if (Mathf.Abs(dragAngle) > touchParameters.DragAngleThreshold)
+        if (Mathf.Abs(dragAngle) < touchParameters.DragAngleThreshold)
         {
-            var orientation = dragAngle > 0f ? DragOrientation.Clockwise : DragOrientation.CounterClockwise;
-            rotatingHexagonalGroupOrderer.OrderAndRotateHexagonalGroup(orientation);
-            shouldProcessDrag = false;
+            previousDragVector = currentDragVector;
             return;
         }
-
-        previousDragVector = currentDragVector;
+        
+        var orientation = dragAngle > 0f ? DragOrientation.Clockwise : DragOrientation.CounterClockwise;
+        
+        rotatingHexagonalGroupOrderer.OrderAndRotateHexagonalGroup(orientation);
+        shouldProcessDrag = false;
     }
     
     private void OnDisable()

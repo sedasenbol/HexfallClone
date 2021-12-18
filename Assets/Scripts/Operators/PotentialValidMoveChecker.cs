@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PotentialValidMoveChecker : MonoBehaviour
 {
-    public static event Action OnNoPotentialMoveLeft; 
+    public static event Action OnNoPotentialValidMoveLeft; 
 
     private List<Hexagon>[] boardHexagons => BoardCreator.Instance.BoardHexagons;
     
@@ -19,6 +19,6 @@ public class PotentialValidMoveChecker : MonoBehaviour
             }
         }
         
-        OnNoPotentialMoveLeft?.Invoke();
+        OnNoPotentialValidMoveLeft?.Invoke();
     }
 }

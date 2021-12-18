@@ -8,11 +8,11 @@ public class LevelManager : MonoBehaviour
     public static event Action OnNoPotentialValidMovePresent;
 
     [SerializeField] private LevelStartParametersScriptableObject levelStartParameters;
-    [SerializeField] private HexagonalGroupChecker hexagonalGroupChecker;
-    [SerializeField] private PotentialValidMoveChecker potentialValidMoveChecker;
 
-    [SerializeField] private GameObject inputHandler;
+    [SerializeField] private PotentialValidMoveChecker potentialValidMoveChecker;
     [SerializeField] private ScoreManager scoreManager;
+    
+    [SerializeField] private GameObject inputHandler;
 
     private bool active;
     
@@ -21,19 +21,20 @@ public class LevelManager : MonoBehaviour
         active = true;
         
         GameManager.OnGameSceneLoaded += OnGameSceneLoaded;
-        HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
+        HexagonalGroupFinder.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
         Bomb.OnBombExploded += OnBombExploded;
-        PotentialValidMoveChecker.OnNoPotentialMoveLeft += OnNoPotentialMoveLeft;
+        PotentialValidMoveChecker.OnNoPotentialValidMoveLeft += OnNoPotentialValidMoveLeft;
         
         inputHandler.gameObject.SetActive(false);
     }
 
-    private void OnNoPotentialMoveLeft()
+    private void OnNoPotentialValidMoveLeft()
     {
         if (!active) {return;}
 
         active = false;
         
+        // If the game has just started, and no valid move is possible, renew the board.
         if (scoreManager.Score == 0) {OnNoPotentialValidMovePresent?.Invoke(); return;}
         
         GameOver();
@@ -62,7 +63,7 @@ public class LevelManager : MonoBehaviour
 
     private void OnGameSceneLoaded()
     {
-        DOTween.SetTweensCapacity(levelStartParameters.TweenersCapacity, levelStartParameters.SequencesCapacity);
+        DOTween.SetTweensCapacity(levelStartParameters.TweenCapacity, levelStartParameters.SequencesCapacity);
 
         StartGame();
     }
@@ -71,14 +72,14 @@ public class LevelManager : MonoBehaviour
     {
         HexagonPooler.Instance.PrepareHexagonPools();
         BoardCreator.Instance.CreateBoard();
-        hexagonalGroupChecker.CheckInitialHexagonGroups();
+        HexagonalGroupFinder.Instance.CheckInitialHexagonGroups();
     }
 
     private void OnDisable()
     {
         GameManager.OnGameSceneLoaded -= OnGameSceneLoaded;
-        HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
+        HexagonalGroupFinder.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
         Bomb.OnBombExploded -= OnBombExploded;
-        PotentialValidMoveChecker.OnNoPotentialMoveLeft -= OnNoPotentialMoveLeft;
+        PotentialValidMoveChecker.OnNoPotentialValidMoveLeft -= OnNoPotentialValidMoveLeft;
     }
 }

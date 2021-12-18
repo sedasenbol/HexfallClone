@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
@@ -16,10 +15,11 @@ public class Hexagon : MonoBehaviour
     private int[] colorCountArray;
 
     private Transform myTransform;
+    private float currentTargetHeight;
 
     protected virtual void OnEnable()
     {
-        HexagonalGroupChecker.OnHexagonCleared += OnHexagonCleared;
+        HexagonalGroupFinder.OnHexagonCleared += OnHexagonCleared;
         
         hexagonalGroup = new List<int[]>();
         colorCountArray = new int[boardParameters.ColorList.Count];
@@ -45,9 +45,9 @@ public class Hexagon : MonoBehaviour
         DOTween.Kill(myTransform);
         CurrentTargetIndexJ--;
         
-        CurrentTargetHeight = BoardCreator.Instance.GetHexagonYPosition(i, CurrentTargetIndexJ);
+        currentTargetHeight = BoardCreator.Instance.GetHexagonYPosition(i, CurrentTargetIndexJ);
 
-        myTransform.DOMoveY(CurrentTargetHeight, boardParameters.OldHexagonFallingDuration).OnComplete(() =>
+        myTransform.DOMoveY(currentTargetHeight, boardParameters.OldHexagonFallingDuration).OnComplete(() =>
         {
             boardOperator.RemoveHexagonFromBoardHexagonsList(this, IndexI, IndexJ);
             IndexJ = CurrentTargetIndexJ;
@@ -59,8 +59,9 @@ public class Hexagon : MonoBehaviour
     {
         Active = true;
         myTransform = transform;
-        CurrentTargetHeight = currentTargetHeight;
+        this.currentTargetHeight = currentTargetHeight;
         CurrentTargetIndexJ = IndexJ;
+        
         SetTouchingHexagonIndexes();
     }
 
@@ -87,7 +88,7 @@ public class Hexagon : MonoBehaviour
         
         for (var i = 0; i < neighborHexagonIndexes.Count; i++)
         {
-            if (color != boardOperator.GetHexagonColorOnIndex(neighborHexagonIndexes[i]))
+            if (MyColor != boardOperator.GetHexagonColorOnIndex(neighborHexagonIndexes[i]))
             {
                 previousHexagonWasOfMyColor = false;
                 continue;
@@ -104,7 +105,7 @@ public class Hexagon : MonoBehaviour
             previousHexagonWasOfMyColor = true;
         }
 
-        if (!previousHexagonWasOfMyColor || color != boardOperator.GetHexagonColorOnIndex(neighborHexagonIndexes[0])) { return HaveHexagonalGroup; }
+        if (!previousHexagonWasOfMyColor || MyColor != boardOperator.GetHexagonColorOnIndex(neighborHexagonIndexes[0])) { return HaveHexagonalGroup; }
         
         hexagonalGroup.Add(neighborHexagonIndexes[neighborHexagonIndexes.Count - 1]); 
         hexagonalGroup.Add(neighborHexagonIndexes[0]);
@@ -134,11 +135,11 @@ public class Hexagon : MonoBehaviour
         
         if (colorCountArrayMax < 3) { return false; }
 
-        var maxIndex = Array.IndexOf(colorCountArray, colorCountArrayMax);
+        var maxColorIndex = Array.IndexOf(colorCountArray, colorCountArrayMax);
         
         // Edge case: If three neighbor hexagon of the same color is of equal distance to each other (form an equilateral triangle),
         // one can not create a hexagonal group using them. 
-        return !CheckEdgeCase(maxIndex);
+        return !CheckPotentialHexagonalGroupEdgeCase(maxColorIndex);
     }
 
     private void ClearColorAndNeighborIndexArrayLists()
@@ -148,32 +149,35 @@ public class Hexagon : MonoBehaviour
             colorAndNeighborIndexArray[i].Clear();
         }
     }
-
-    private bool CheckEdgeCase(int maxIndex)
+    
+    // Edge case: If three neighbor hexagon of the same color is of equal distance to each other (form an equilateral triangle),
+    // one can not create a hexagonal group using them. 
+    private bool CheckPotentialHexagonalGroupEdgeCase(int maxColorIndex)
     {
-        var startingNeighbourIndex = colorAndNeighborIndexArray[maxIndex][0];
+        var startingNeighbourIndex = colorAndNeighborIndexArray[maxColorIndex][0];
 
-        return colorAndNeighborIndexArray[maxIndex].Contains((startingNeighbourIndex + 2) % 6) &&
-               colorAndNeighborIndexArray[maxIndex].Contains((startingNeighbourIndex + 4) % 6) &&
-               colorAndNeighborIndexArray[maxIndex].Count == 3;
+        return colorAndNeighborIndexArray[maxColorIndex].Contains((startingNeighbourIndex + 2) % 6) &&
+               colorAndNeighborIndexArray[maxColorIndex].Contains((startingNeighbourIndex + 4) % 6) &&
+               colorAndNeighborIndexArray[maxColorIndex].Count == 3;
     }
 
     protected virtual void OnDisable()
     {
         myTransform = null;
 
-        HexagonalGroupChecker.OnHexagonCleared -= OnHexagonCleared;
+        HexagonalGroupFinder.OnHexagonCleared -= OnHexagonCleared;
     }
-
+    
+    public bool Active { get; set; }
     public bool Chosen { get; set; }
     public bool HasBeenJustSpawned { get; set; }
-    public int CurrentTargetIndexJ { get; set; }
-    public float CurrentTargetHeight { get; set; }
-    public bool Active { get; set; }
-    public Transform MyTransform => myTransform;
     public bool HaveHexagonalGroup { get; set; }
-    public List<int[]> HexagonalGroup => hexagonalGroup;
+
+    public int CurrentTargetIndexJ { get; set; }
     public int IndexI { get; set; }
     public int IndexJ { get; set; }
-    public Color color { get; set; }
+    
+    public Transform MyTransform => myTransform;
+    public List<int[]> HexagonalGroup => hexagonalGroup;
+    public Color MyColor { get; set; }
 }

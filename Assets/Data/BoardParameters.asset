@@ -19,8 +19,8 @@ MonoBehaviour:
   bombSpawnCountPerColor: 5
   bombCounterMaxValue: 8
   bombCounterMinValue: 3
-  rowCount: 3
-  columnCount: 3
+  rowCount: 9
+  columnCount: 8
   colorList:
   - {r: 0.17515779, g: 1, b: 0, a: 0.78431374}
   - {r: 1, g: 0.94493365, b: 0, a: 0.78431374}

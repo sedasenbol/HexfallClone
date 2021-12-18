@@ -1,30 +1,24 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
-
-public enum Orientation
-{
-    Horizontal,
-    Vertical
-}
 
 public class BoardCreator : Singleton<BoardCreator>
 {
     [SerializeField] private BoardParametersScriptableObject boardParameters;
 
     private Camera mainCam;
+    
     private Vector3 bottomLeftScreenWorldPos;
     private Vector3 topRightScreenWorldPos;
     
     private float hexagonXLength;
     private float hexagonYLength;
+    
     private float limitXHexagonScaleMultiplier;
     private float limitYHexagonScaleMultiplier;
+    
     private Vector3 hexagonScale;
     private Vector3 boardOffset;
-    private float heightDifferenceBetweenHexagons;
     
     private void OnEnable()
     {
@@ -38,8 +32,6 @@ public class BoardCreator : Singleton<BoardCreator>
         SetBoardOffset();
         
         CreateInitialHexagons();
-        
-        SetHeightDifferenceBetweenHexagons();
     }
 
     private void GetHexagonLengths()
@@ -140,12 +132,6 @@ public class BoardCreator : Singleton<BoardCreator>
                ((1 + (i+1) % 2) * 0.5f + j) * hexagonYLength;
     }
 
-    private void SetHeightDifferenceBetweenHexagons()
-    {
-        // Same for every column and row
-        heightDifferenceBetweenHexagons = GetHexagonYPosition(0, 1) - GetHexagonYPosition(0, 0);
-    }
-    
     private float GetHexagonXPosition(int i)
     {
         return boardOffset.x / 2f + bottomLeftScreenWorldPos.x + boardParameters.BoardMarginHorizontal / 2f + hexagonXLength / 
@@ -160,6 +146,5 @@ public class BoardCreator : Singleton<BoardCreator>
 
     public float HexagonXLength => hexagonXLength;
     public Vector3 HexagonScale => hexagonScale;
-    public float HeightDifferenceBetweenHexagons => heightDifferenceBetweenHexagons;
     public List<Hexagon>[] BoardHexagons { get; set; }
 }

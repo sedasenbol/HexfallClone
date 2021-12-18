@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
@@ -13,7 +10,7 @@ public class ScoreManager : MonoBehaviour
     
     private void OnEnable()
     {
-        HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
+        HexagonalGroupFinder.OnAllInitialHexagonalGroupsCleared += OnAllInitialHexagonalGroupsCleared;
     }
 
     private void OnAllInitialHexagonalGroupsCleared()
@@ -40,7 +37,7 @@ public class ScoreManager : MonoBehaviour
     
     private void OnDisable()
     {
-        HexagonalGroupChecker.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
+        HexagonalGroupFinder.OnAllInitialHexagonalGroupsCleared -= OnAllInitialHexagonalGroupsCleared;
     }
 
     public float Score => score;

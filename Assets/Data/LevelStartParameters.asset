@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: LevelStartParameters
   m_EditorClassIdentifier: 
   tweenersCapacity: 300
-  sequencesCapacity: 5
+  sequencesCapacity: 0
   initialHexagonCheckDelay: 0.5
   startCombiningHexagonsTextDelay: 1.5

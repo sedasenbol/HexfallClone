@@ -5,7 +5,6 @@ using UnityEngine;
 public class HexagonalGroupRotator : MonoBehaviour
 {
     [SerializeField] private BoardParametersScriptableObject boardParameters;
-    [SerializeField] private HexagonalGroupChecker hexagonalGroupChecker;
     [SerializeField] private BoardOperator boardOperator;
 
     private int hexagonalGroupRotateCounter;
@@ -21,7 +20,7 @@ public class HexagonalGroupRotator : MonoBehaviour
     orderedIndexes)
     {
         hexagonalGroupRotateCounter = 0;
-        hasRotatingHexagonGroup = true;
+      //  hasRotatingHexagonGroup = true;
 
         RotateAndCheckHexagonalGroup(chosenHexagons, hexagonTransforms, orderedIndexes);
     }
@@ -30,7 +29,7 @@ public class HexagonalGroupRotator : MonoBehaviour
     {
         if (hexagonalGroupRotateCounter == boardParameters.HexagonalGroupRotateSpinCount * 3)
         {
-            hasRotatingHexagonGroup = false;
+        //    hasRotatingHexagonGroup = false;
             return;
         }
         
@@ -46,9 +45,9 @@ public class HexagonalGroupRotator : MonoBehaviour
     {
         yield return waitForPreviousRotateFinish;
 
-        if (hexagonalGroupChecker.CheckHexagonalGroupAfterRotate(chosenHexagons))
+        if (HexagonalGroupFinder.Instance.CheckHexagonalGroupAfterRotate(chosenHexagons))
         {
-            hasRotatingHexagonGroup = false;
+          //  hasRotatingHexagonGroup = false;
             yield break;
         }
 

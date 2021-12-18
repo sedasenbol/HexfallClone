@@ -6,23 +6,27 @@ using DG.Tweening;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class HexagonalGroupChecker : MonoBehaviour
+public class HexagonalGroupFinder : Singleton<HexagonalGroupFinder>
 {
     public static event Action<int, int> OnHexagonCleared;
     public static event Action OnPlayerClearedHexagonalGroup;
     public static event Action OnAllInitialHexagonalGroupsCleared;
 
-    [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
     [SerializeField] private BoardParametersScriptableObject boardParameters;
+    
+    [SerializeField] private HexagonalGroupChooser hexagonalGroupChooser;
     [SerializeField] private BoardOperator boardOperator;
     [SerializeField] private ScoreManager scoreManager;
     [SerializeField] private PotentialValidMoveChecker potentialValidMoveChecker;
-
-    private YieldInstruction waitForNewHexagonsFall;
+    
     private List<Hexagon>[] boardHexagons => BoardCreator.Instance.BoardHexagons;
     private List<int[]> hexagonIndexesToSetInactive;
     private List<Hexagon> recentlySpawnedHexagons;
 
+    private YieldInstruction waitForNewHexagonsFall;
+
+    private bool operatingOnBoard;
+    
     private void OnEnable()
     {
         waitForNewHexagonsFall = new WaitForSeconds(boardParameters.ClearedHexagonFallingDuration + boardParameters
@@ -62,6 +66,7 @@ public class HexagonalGroupChecker : MonoBehaviour
             return true;
         }
 
+        operatingOnBoard = false;
         potentialValidMoveChecker.CheckIfThereIsAnyPotentialValidMoveLeft();
         return false;
     }
@@ -73,6 +78,8 @@ public class HexagonalGroupChecker : MonoBehaviour
 
     public bool CheckHexagonalGroupAfterRotate(Hexagon[] rotatingHexagons)
     {
+        operatingOnBoard = true;
+        
         SetOldHexagonsHasBeenJustSpawnedToFalse();
 
         hexagonIndexesToSetInactive.Clear();
@@ -103,6 +110,7 @@ public class HexagonalGroupChecker : MonoBehaviour
             return true;
         }
 
+        operatingOnBoard = false;
         potentialValidMoveChecker.CheckIfThereIsAnyPotentialValidMoveLeft();
         return false;
     }
@@ -168,7 +176,7 @@ public class HexagonalGroupChecker : MonoBehaviour
 
         currentHexagon.MyTransform.DOMoveY(boardParameters.HexagonFallingHeight, boardParameters.ClearedHexagonFallingDuration);
         
-        HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.color);
+        HexagonPooler.Instance.AddItemBackToThePool(currentHexagon.gameObject, currentHexagon.MyColor);
         boardOperator.RemoveHexagonFromBoardHexagonsList(currentHexagon, indexes[0], indexes[1]);
         OnHexagonCleared?.Invoke(indexes[0], indexes[1]);
     }
@@ -211,11 +219,12 @@ public class HexagonalGroupChecker : MonoBehaviour
         hexagon.IndexJ = j;
         hexagon.Initialize(finalPosition.y);
         hexagonTransform.DOMoveY(finalPosition.y, boardParameters.HexagonFallingAfterSpawnDuration);
-        hexagon.color = randomColor;
+        hexagon.MyColor = randomColor;
         boardOperator.AddHexagonToBoardHexagonsList(hexagon, i, j);
 
         return hexagon;
     }
 
+    public bool OperatingOnBoard => operatingOnBoard;
 
 }

@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using DG.Tweening;
 using UnityEngine;
 
 public class BoardOperator : MonoBehaviour
@@ -18,7 +14,7 @@ public class BoardOperator : MonoBehaviour
 
     public void RemoveHexagonFromBoardHexagonsList(Hexagon hexagon, int i, int j)
     {
-        if (boardHexagons[i][j] != hexagon) {return;}///////////
+        if (boardHexagons[i][j] != hexagon) {return;}
         
         boardHexagons[i][j] = null;
     }
@@ -28,7 +24,7 @@ public class BoardOperator : MonoBehaviour
         if (indexes[0] < 0 || indexes[0] > boardParameters.ColumnCount - 1 || 
             indexes[1] < 0 || indexes[1] > boardParameters.RowCount - 1) 
         { return Color.clear; }
-        
-        return boardHexagons[indexes[0]][indexes[1]].color; 
+
+        return boardHexagons[indexes[0]][indexes[1]].MyColor; 
     }
 }

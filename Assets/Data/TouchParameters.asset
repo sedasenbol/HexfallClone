@@ -12,8 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25a698f3718284c049091a692c6aa2fc, type: 3}
   m_Name: TouchParameters
   m_EditorClassIdentifier: 
-  tappingRayRadius: 1
-  tappingRayMaxDistance: 5
   chosenHexagonsScalePercentage: 0.85
-  chosenHexagonsScaleChangeDuration: 0.5
-  dragAngleThreshold: 0.5
+  dragAngleThreshold: 5
