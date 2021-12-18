@@ -34,4 +34,4 @@ MonoBehaviour:
   hexagonFallingAfterSpawnDuration: 0.5
   initialHexagonGroupCheckDelay: 0.2
   hexagonalGroupUnitRotateDuration: 0.3
-  hexagonalGroupRotateSpinCount: 3
+  hexagonalGroupRotateSpinCount: 1
