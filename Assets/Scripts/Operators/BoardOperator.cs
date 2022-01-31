@@ -29,7 +29,7 @@ namespace Operators
                 indexes[1] < 0 || indexes[1] > boardParameters.RowCount - 1) 
             { return Color.clear; }
 
-            return boardHexagons[indexes[0]][indexes[1]].MyColor; 
+            return boardHexagons[indexes[0]][indexes[1]] == null ? Color.clear : boardHexagons[indexes[0]][indexes[1]].MyColor;
         }
     }
 }

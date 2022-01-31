@@ -92,6 +92,8 @@ namespace Operators
             {
                 for (var j = 0; j < boardHexagons[i].Count; j++)
                 {
+                    if (boardHexagons[i][j] == null) {continue;}
+                    
                     boardHexagons[i][j].Initialize(BoardCreator.Instance.GetHexagonYPosition(i, j));
                     boardHexagons[i][j].HasBeenJustSpawned = false;
                     CheckHexagonalGroupAroundIndex(i, j, true);
